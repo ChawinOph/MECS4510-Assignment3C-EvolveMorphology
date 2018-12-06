@@ -1,0 +1,55 @@
+cd/
+c:
+cd Users\Chawin Ophaswongse\OneDrive\MechE MS-PhD\Courses\2018 Fall - MECS EVOLUTIONARY COMP and DESIGN AUTOM\HW5
+git status
+
+% laptop
+cd/
+d:
+cd OneDrive\MechE MS-PhD\Courses\2018 Fall - MECS EVOLUTIONARY COMP and DESIGN AUTOM\HW4
+git status
+
+git add Robot.m
+git add Simulator.m
+
+git commit -m "<Add message>"d
+
+git push origin master
+
+% Making a new branch 
+git checkout -b <mynewbranchname>
+
+% changing filenames in local repository
+git mv <old_filename> <new_filename>
+
+% Switch branch
+git checkout "branch_name"]
+is another way to say:
+[git checkout -b branch_name origin/branch_name] % this also create a new branch in local
+in case "branch_name" exists only remotely.
+
+%% update work with the remote
+% fetch to all branch
+git remote update
+
+% check the different
+git diff master origin/master
+
+% suggested workflow (https://stackoverflow.com/questions/292357/what-is-the-difference-between-git-pull-and-git-fetch)
+git checkout master              
+
+%To undo git add . use
+git reset (no dot).                                    
+
+git fetch                                        
+git diff origin/master
+git rebase origin master
+
+% git pull --rebase  origin
+
+% cancel the merge
+git merge --abort
+
+% push local master to a remote branch
+git push origin master master:Rosie2
+git push -u origin branch_name:branch_name_test
