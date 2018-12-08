@@ -461,9 +461,7 @@ classdef MorphCube < handle
                 end
             end
         end
-        
-        
-        
+           
         function S = skew(~, v)
             % vec: 3 x 1 vector column
             S = [0 -v(3) v(2); v(3) 0 -v(1); -v(2) v(1) 0];
