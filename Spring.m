@@ -7,11 +7,12 @@ classdef Spring < handle
         act % Actuation parameters
         k % Double. Stiffness [Newtons/meter]
         m % Int Array. Index of the two masses it connects to.
+        type % Int. Index of spring type
     end
     
     methods
         % Constructor
-        function obj = Spring(L_0, k, m, act)
+        function obj = Spring(L_0, k, m, act, type)
             %SPRING Construct an instance of the class spring
             %   Detailed explanation goes here
             if nargin~=0
@@ -21,6 +22,9 @@ classdef Spring < handle
                     obj(i).m = m(i,:);
                     if nargin>3
                         obj(i).act = act(i,:);
+                    end
+                    if nargin > 4 
+                        obj(i).type = type(i,:);
                     end
                 end
             end
