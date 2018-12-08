@@ -6,11 +6,8 @@ git status
 % laptop
 cd/
 d:
-cd OneDrive\MechE MS-PhD\Courses\2018 Fall - MECS EVOLUTIONARY COMP and DESIGN AUTOM\HW4
+cd OneDrive\MechE MS-PhD\Courses\2018 Fall - MECS EVOLUTIONARY COMP and DESIGN AUTOM\HW5
 git status
-
-git add Robot.m
-git add Simulator.m
 
 git commit -m "<Add message>"d
 
