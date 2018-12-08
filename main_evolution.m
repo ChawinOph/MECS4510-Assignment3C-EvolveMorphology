@@ -10,8 +10,8 @@ s = 0.5;
 
 %%
 genes= rand(5,9,p);
-bots = MorphCube(genes, ones(1,p));
-sim = simulator();
+bots = MorphCube(genes);
+sim = Simulator();
 par_layers = zeros(s*p, s*p, g);
 children = zeros(5,9,(1-s)*p);
 evaluate(bots);
@@ -49,3 +49,21 @@ end
 
 %%
 plot(par_layers(1,:,:))
+
+bot_no = 17;
+sim = Simulator(bots(bot_no));
+figure;
+sim.drawRobots()
+
+% bots(bot_no).plotPDF();
+bots(bot_no).plotMaterial();
+
+[frames, K, V, COM, fitness] = sim.simulate_and_plot(bots(bot_no));
+
+% export to video
+myVideo = VideoWriter('MorphCube.avi');
+myVideo.FrameRate = 25;  % Default 30
+myVideo.Quality = 100;    % Default 75
+open(myVideo);
+writeVideo(myVideo, frames);
+close(myVideo);

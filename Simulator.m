@@ -1,4 +1,4 @@
-classdef simulator < handle
+classdef Simulator < handle
     %SIMULATOR Summary of this class goes here
     %   Detailed explanation goes here
     properties (Constant)
@@ -13,11 +13,11 @@ classdef simulator < handle
     properties
         bots % Array of robots Represents the bodies in the system
         t = 0 % Double. current time
-        dt = 0.005; 
+        dt = 0.001; 
     end
     
     methods
-        function obj = simulator(bots, dt)
+        function obj = Simulator(bots, dt)
             %SIMULATOR Construct an instance of simulator class
             %   Detailed explanation goes here
             if nargin>0
@@ -52,12 +52,10 @@ classdef simulator < handle
             obj.t = 0;
             
             for i = 1:length(T)
-
                 [ke, pe, com_pos] = obj.step();      
                 V(i, :) = pe;
                 K(i, :) = ke;
-                COM(i, :, :) = reshape(com_pos, 1, 3, []);
-                
+                COM(i, :, :) = reshape(com_pos, 1, 3, []);            
             end
             
             fitnesses = reshape(vecnorm(COM(end , 1:2, :), 2, 2), 1, []);
@@ -159,23 +157,25 @@ classdef simulator < handle
         
         %% VISUALIZATION
         function drawRobots(obj)
-              
+            
+            spring_color = flipud(jet(4));
             % loop through all robots
             for bot_no = 1:length(obj.bots)
-                % get position of all point masses
-%                 mass_pos = reshape([obj.bots(bot_no).masses.p], 3, []);
-%                 scat = scatter3(mass_pos(1, :), mass_pos(2, :), mass_pos(3, :));
-%                 hold on;
-%                 scat.MarkerEdgeColor = 'k';
-%                 scat.MarkerFaceColor = 'b';
-
-                obj.drawOctaSurface(bot_no)
-
-%                 draw springs based on given pairs of mass indices
-                pair_indcs = reshape([obj.bots(bot_no).springs.m], 2, [])';
-                for i = 1:size(pair_indcs, 1)
-                    pair_pos = reshape([obj.bots(bot_no).masses(pair_indcs(i, :)).p], 3, []);
-                    plot3(pair_pos(1, :), pair_pos(2, :), pair_pos(3, :), 'k'); hold on;
+                if ~isempty([obj.bots(bot_no).masses.p])
+                    % get position of all point masses
+                    % mass_pos = reshape([obj.bots(bot_no).masses.p], 3, []);
+                    % scat = scatter3(mass_pos(1, :), mass_pos(2, :), mass_pos(3, :));
+                    % hold on;
+                    % scat.MarkerEdgeColor = 'k';
+                    % scat.MarkerFaceColor = 'b';                   
+                    % obj.drawOctaSurface(bot_no)                    
+                    % draw springs based on given pairs of mass indices
+                    pair_indcs = reshape([obj.bots(bot_no).springs.m], 2, [])';
+                    spring_types = [obj.bots(bot_no).springs.type];
+                    for i = 1:size(pair_indcs, 1)                                               
+                        pair_pos = reshape([obj.bots(bot_no).masses(pair_indcs(i, :)).p], 3, []);
+                        plot3(pair_pos(1, :), pair_pos(2, :), pair_pos(3, :), 'Color', spring_color(spring_types(i), :), 'LineWidth', 1.5); hold on;
+                    end
                 end
             end
                        
@@ -190,7 +190,7 @@ classdef simulator < handle
             [X,Y] = meshgrid(xlm(1):0.1:xlm(2), ylm(1):0.1:(ylm(2)));
             Z = zeros(size(X));
             h = surf(X,Y,Z);
-            h.FaceColor = 0.9*[1 1 1];
+            h.FaceColor = 0.8*[1 1 1];
             h.FaceLighting = 'gouraud';
             
             % add light 
@@ -206,48 +206,6 @@ classdef simulator < handle
 %             h2.FaceAlpha = 0.25;
             h2.EdgeColor = 'none';
             h2.FaceLighting = 'gouraud';
-        end
-        
-        function drawAllStarfishSurface(obj, bot_no)
-            mass_pos = reshape([obj.bots(bot_no).masses.p], 3, []);
-            % top surface
-            obj.drawSurface(mass_pos(:, [14 15 16 17])); hold on;
-            obj.drawSurface(mass_pos(:, [14 15 7]));
-            obj.drawSurface(mass_pos(:, [16 15 9]));
-            obj.drawSurface(mass_pos(:, [16 17 11]));
-            obj.drawSurface(mass_pos(:, [14 17 13]));
-            
-            % east leg
-            obj.drawSurface(mass_pos(:, [1 5 7])); 
-            obj.drawSurface(mass_pos(:, [1 6 7])); 
-            obj.drawSurface(mass_pos(:, [1 5 13])); 
-            obj.drawSurface(mass_pos(:, [1 6 13])); 
-            obj.drawSurface(mass_pos(:, [14 6 13])); 
-            obj.drawSurface(mass_pos(:, [14 6 7])); 
-            
-            % north leg
-            obj.drawSurface(mass_pos(:, [2 5 7])); 
-            obj.drawSurface(mass_pos(:, [2 7 8])); 
-            obj.drawSurface(mass_pos(:, [2 8 9])); 
-            obj.drawSurface(mass_pos(:, [2 5 9])); 
-            obj.drawSurface(mass_pos(:, [15 7 8])); 
-            obj.drawSurface(mass_pos(:, [15 8 9])); 
-            
-            % west leg
-            obj.drawSurface(mass_pos(:, [3 5 9])); 
-            obj.drawSurface(mass_pos(:, [3 9 10])); 
-            obj.drawSurface(mass_pos(:, [3 10 11])); 
-            obj.drawSurface(mass_pos(:, [3 5 11])); 
-            obj.drawSurface(mass_pos(:, [16 9 10])); 
-            obj.drawSurface(mass_pos(:, [16 10 11])); 
-            
-            % south leg
-            obj.drawSurface(mass_pos(:, [4 5 11])); 
-            obj.drawSurface(mass_pos(:, [4 11 12])); 
-            obj.drawSurface(mass_pos(:, [4 12 13])); 
-            obj.drawSurface(mass_pos(:, [4 5 13])); 
-            obj.drawSurface(mass_pos(:, [17 11 12])); 
-            obj.drawSurface(mass_pos(:, [17 12 13])); 
         end
         
          function drawOctaSurface(obj, bot_no)
