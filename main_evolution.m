@@ -3,11 +3,11 @@ clc
 clear
 close all
 %%
-p = 50;
-g = 10;
+p = 50; % Population size
+g = 10; % number of generations
+s = 0.5; % 
 m = 0.02;
-s = 0.5;
-
+r = 0.2
 %%
 genes= rand(5,9,p);
 bots = MorphCube(genes);
@@ -24,7 +24,7 @@ for i = 1:g
     ages = bots.age;
     
     % Select
-    [front, idx] = pareto_pick(s, fits, ages);
+    [front, idx] = pareto_pick(s-0.5*r, fits, ages);
     parent_bots = bots(idx);
     parents = parents_bots.gene;
     
@@ -41,6 +41,9 @@ for i = 1:g
         children = mutate1(gene);
     end
     chidren_bots = MorphCube(children, parent_bots.ages + 1);
+    
+    %Add new random individuals
+    rand_bots = MorphCube(
     
     evaluate(sim, children_bots);
     bots = [parent_bots, children_bots];

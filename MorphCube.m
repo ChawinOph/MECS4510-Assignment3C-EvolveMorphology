@@ -63,6 +63,8 @@ classdef MorphCube < handle
                 % create an object arrays of robots
                 for n_bot = size(chromosomes, 3):-1:1
                     
+                    % add the age
+                    obj(n_bot).age = age(n_bot);
                     % convert to 2d array for pdf calculation
                     obj(n_bot).voxel_pos = [X(:), Y(:), Z(:)];
                     % move the origin to the voxel center
