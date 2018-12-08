@@ -40,7 +40,8 @@ for i = 1:g
     for j = 1:m*p
         children = mutate1(gene);
     end
-    chidren_bots = MorphCube(children, parents.ages + 1);
+    chidren_bots = MorphCube(children, parent_bots.ages + 1);
+    
     evaluate(children_bots);
     bots = [parent_bots, children_bots];
     shuffle_ind = randperm(length(bots));

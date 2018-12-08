@@ -34,15 +34,17 @@ for i = 1:g
     % Crossover
     for j = 1:2:length(parents)
         [children(i), children(i+1)] = crossoverMat(parents(i), parents(i+1));
+        children(i).age = pare
     end
     
     %Mutation
     for j = 1:m*p
         children = mutate1(gene);
     end
+    chidren_bots = MorphCube(children, parent_bots.ages + 1);
     
     evaluate(children_bots);
-    bots = [parents, children];
+    bots = [parent_bots, children_bots];
     shuffle_ind = randperm(length(bots));
     bots = bots(shuffle_ind);
 end
