@@ -11,6 +11,9 @@ git status
 
 git commit -m "<Add message>"d
 
+% stages modifications and deletions, without new files
+git add -u 
+
 git push origin master
 
 % Making a new branch 

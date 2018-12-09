@@ -8,6 +8,7 @@ g = 1; % number of generations
 s = 0.5; % selection pressure
 m = 0.1; % proportion of children that get mutated
 r = 0.2; % proportion of random individuals added to the population every gen
+
 %%
 genes= rand(5,9,p);
 bots = MorphCube(genes);
@@ -46,6 +47,7 @@ for i = 1:g
     
     %Add new random individuals
     rand_bots = MorphCube(rand(5,9,r*p));
+
     
     child_fits = evaluate(sim, children_bots);
     rand_fits = evaluate(sim, rand_bots);
@@ -62,13 +64,20 @@ plot(par_layers(1,:,:))
 save('test_run2');
 bot_no = 17;
 sim = Simulator(bots(bot_no));
-figure;
-sim.drawRobots()
 
+figure;
 % bots(bot_no).plotPDF();
 bots(bot_no).plotMaterial();
 
-[frames, K, V, COM, fitness] = sim.simulate_and_plot(bots(bot_no));
+sim = Simulator(MorphCube(bots(bot_no).chromosome));
+figure;
+sim.drawRobots;
+
+sim = Simulator();
+[frames, K, V, COM, fitness] = sim.simulate_and_plot(MorphCube(bots(bot_no).chromosome));
+tic
+fitnesses = sim.evaluate(MorphCube(bots(bot_no).chromosome));
+toc
 
 % export to video
 myVideo = VideoWriter('MorphCube.avi');

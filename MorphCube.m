@@ -8,14 +8,16 @@ classdef MorphCube < handle
         voxel_pos %
         voxel_matrl %
         pd %
+        pd_expnd %
+        expnd_voxel_pos %
     end
     
     properties (Constant)
         % global constants
-        mass = 0.1; % m
-        omega = pi; % (0.5 Hz of breathing);
+        mass = 0.5; % m
+        omega = 1.5*pi; % (0.5 Hz of breathing);
         cube_length = 0.1 % double: length of each individual cube strcture
-        voxel_dim = [2 2 2]   % int 3 x 1: no. of cubes in each dimension (default 5 x 5 x 5)
+        voxel_dim = [2 3 2]   % int 3 x 1: no. of cubes in each dimension (default 5 x 5 x 5)
         var_range = [0.01 0.04; 0.01 0.04; 0.01 0.04];  % [Var_x; Var_y; Var_z]
         % Cov_xy = [0,1]*sqrt(Var_x)*sqrt(Var_y)
         % Cov_xz = [0,1]*sqrt(Var_x)*sqrt(Var_z)
@@ -71,6 +73,10 @@ classdef MorphCube < handle
                     obj(n_bot).voxel_pos = obj(n_bot).voxel_pos - min(obj(n_bot).voxel_pos) - range(obj(n_bot).voxel_pos)/2;
                     obj(n_bot).chromosome = chromosomes(:, :, n_bot);
                     
+                     % get expanded pd for plotting
+                    [X_exp, Y_exp, Z_exp] = obj(n_bot).getExpandedMeshGrid();
+                    obj(n_bot).expnd_voxel_pos = [X_exp(:), Y_exp(:), Z_exp(:)];
+                    
                     if nargin > 1
                         % sort rows of gene in case we do linkage tightening
                         % do the inverse operation of the sorting
@@ -85,6 +91,7 @@ classdef MorphCube < handle
                     % initializa the prob density PD values as a n_voxel x
                     % n_matrl
                     pd = zeros(size(obj(n_bot).chromosome, 1), size(obj(n_bot).voxel_pos, 1));
+                    pd_expnd = zeros(size(obj(n_bot).chromosome, 1), size(obj(n_bot).expnd_voxel_pos, 1));
                     
                     % convert normalized values of mu to the xyz positions
                     MU = obj(n_bot).chromosome(:, 1:3).*range(obj(n_bot).voxel_pos) + min(obj(n_bot).voxel_pos);
@@ -112,10 +119,13 @@ classdef MorphCube < handle
                         % how-to-generate-random-symmetric-positive-definite-matrices-using-matlab
                         covar = covar + diag(max(obj(n_bot).var_range, [], 2));
                         pd(i, :) = mvnpdf(obj(n_bot).voxel_pos, MU(i, :), covar);
-                        
+                        pd_expnd(i, :) = mvnpdf(obj(n_bot).expnd_voxel_pos, MU(i, :), covar);
                     end
                     
+                                  
                     obj(n_bot).pd = pd;
+                    obj(n_bot).pd_expnd = pd_expnd;      
+                   
                     
                     % select material with prob in proportion to weights (PD) of
                     % material at each columbn of voxel coordinate (or just find the max value)
@@ -172,8 +182,10 @@ classdef MorphCube < handle
                             p_candidate(j, :) = vox_center + corner_signs(j, :).*cube_corner;
                             % check if the position already exists
                             % putting isempty as the first expression will
-                            % prevent the error in ismember()
-                            if isempty(p) || ~ismember(p_candidate(j, :), p, 'rows')
+                            % prevent the error in ismembertol()
+                            % ismembertol will prevent creating masses
+                            % nearly on top of each other
+                            if isempty(p) || ~ismembertol(p_candidate(j, :), p, 'ByRows', true)
                                 % store in the p
                                 p = [p;  p_candidate(j, :)]; %#ok<AGROW>
                             end
@@ -181,24 +193,25 @@ classdef MorphCube < handle
                         % all canndidates are used to construct the springs
                         for j = 1: size(p_candidate)
                             % get the index of the postiion in p
-                            [~, node_indx] = ismember(p_candidate(j, :), p, 'rows');
+                            [~, node_indx] = ismembertol(p_candidate(j, :), p, 'ByRows', true);
                             
                             % get all posibility of neighbor positions
                             % within the same voxel at each of the eight pos candidates
                             neighber_rel_pos = -diag(2*corner_signs(j, :).*cube_corner);
+                            neighber_rel_pos = [neighber_rel_pos; -2*corner_signs(j, :).*cube_corner]; %#ok<AGROW>
                             
                             for k = 1: size(neighber_rel_pos, 1)
                                 neighbor_pos = p_candidate(j, :) + neighber_rel_pos(k, :);
                                 
                                 % find the index of the neighbor pos in p
-                                [~, neighbor_indx] = ismember(neighbor_pos, p, 'rows');
+                                [~, neighbor_indx] = ismembertol(neighbor_pos, p, 'ByRows', true);
                                 
                                 % pair up the node and the current neighbor
                                 % indx and sort in ascending order
                                 candidate_connect_indcs = sort([node_indx, neighbor_indx]);
                                 
                                 % check if the connecting indcs already exist
-                                if isempty(spring_connect_indcs) || ~ismember(candidate_connect_indcs, spring_connect_indcs, 'rows')
+                                if isempty(spring_connect_indcs) || ~ismembertol(candidate_connect_indcs, spring_connect_indcs, 'ByRows', true)
                                     % if it's a new pair, add it to the
                                     % list spring_connect_indcs
                                     spring_connect_indcs = [spring_connect_indcs; candidate_connect_indcs];      %#ok<AGROW>
@@ -210,21 +223,21 @@ classdef MorphCube < handle
                                         case 1 % hard
                                             b_breathing = 0;
                                             phase = 0;
-                                            k_spring = 1000;
+                                            k_spring = 1500;
                                         case 2 % soft
                                             b_breathing = 0;
                                             phase = 0;
-                                            k_spring = 200;
+                                            k_spring = 500;
                                         case 3 % sine med
                                             b_breathing = 1;
                                             phase = 0;
-                                            k_spring = 600;
+                                            k_spring = 1000;
                                         case 4 % cosine med
                                             b_breathing = 1;
                                             phase = pi/2;
-                                            k_spring = 600;
+                                            k_spring = 1000;
                                     end
-                                    acts = [acts; b_breathing*[new_L0/2, obj(n_bot).omega, phase]]; %#ok<AGROW>
+                                    acts = [acts; b_breathing*[new_L0/4, obj(n_bot).omega, phase]]; %#ok<AGROW>
                                     K = [K; k_spring]; %#ok<AGROW>
                                     spring_type = [spring_type; current_matrl]; %#ok<AGROW>
                                 end
@@ -240,7 +253,7 @@ classdef MorphCube < handle
                     if ~isempty(p)
                         R = eye(3);
                         p = R*p'; % tilt all masses
-                        p = p' + p_init_offset(n_bot,:); % add the offset (each row of 2d array);
+                        p = p' + p_init_offset(n_bot,:) + 0*[0 0 obj(n_bot).cube_length/4]; % add the offset (each row of 2d array);
                     end
                     obj(n_bot).masses = PointMass(repmat(obj(n_bot).mass, size(p, 1), 1), p, repmat(v_init(n_bot ,:), size(p,1), 1), repmat(a_init(n_bot, :), size(p,1), 1));
                     obj(n_bot).springs = Spring(L_0, K, spring_connect_indcs, acts, spring_type);
@@ -290,7 +303,17 @@ classdef MorphCube < handle
                 vector = my_masses(pair_indcs(1)).p - my_masses(pair_indcs(2)).p;
                 L = vecnorm(vector);
                 act = my_springs(i).act;
-                L_act = my_springs(i).L_0 + act(1)*sin(act(2)*t + act(3));
+                % add delay to prevent the cosine from jumping at
+                % the beginning
+                if t < 0.25*2*pi/act(2)
+                    if my_springs(i).type == 4
+                        L_act = my_springs(i).L_0;
+                    else
+                        L_act = my_springs(i).L_0 + act(1)*sin(act(2)*t + act(3));
+                    end
+                else
+                    L_act = my_springs(i).L_0 + act(1)*sin(act(2)*t + act(3));
+                end
                 pe = pe + 0.5*my_springs(i).k*(L - L_act).^2;
             end
             % GRF energy will be summed in the simulation object
@@ -315,19 +338,35 @@ classdef MorphCube < handle
         
         function plotPDF(obj)
             figure;
-            [X, Y, Z] = obj.getMeshGrid();
+            [X, Y, Z] = obj.getExpandedMeshGrid();
             lim = zeros(size(obj.chromosome, 1), 2);
             
             labels = {'Hard','Soft','Sine','Cosine','Empty'};
             
+            % prepare voxel plot       
+            cube_dim = obj.cube_length*ones(1,3); 
+            % create offset to see the scatter plots at the center of voxels
+            vox_plot_pos = obj.voxel_pos - cube_dim/2;
+            
             for i = size(obj.chromosome, 1): -1 : 1
                 ax(i) = subplot(size(obj.chromosome, 1), 1, i);
-                pcolor3(X, Y, Z, reshape(obj.pd(i, :), ...
-                    obj.voxel_dim(1), obj.voxel_dim(2), ...
-                    obj.voxel_dim(3)));
+                pcolor3(X, Y, Z, reshape(obj.pd_expnd(i, :), ...
+                    size(X, 1),  size(X, 2), ...
+                    size(X, 3))); hold on
                 colorbar;
+                
+                for j = 1:length(obj.voxel_pos)                    
+                    voxel(vox_plot_pos(j, :), cube_dim, 'w', 0)
+                end
+                
                 lim(i, :) = caxis;
                 title(labels{i})
+                % set limits
+                xlim([min(X(:)) max((X(:)))]);
+                ylim([min(Y(:)) max((Y(:)))])
+                zlim([min(Z(:)) max((Z(:)))])
+                
+                axis equal;
             end
             
             min_lim = min(min(lim));
@@ -342,6 +381,13 @@ classdef MorphCube < handle
             x_range = min(obj.voxel_pos(:,1)): obj.cube_length: max(obj.voxel_pos(:,1));
             y_range = min(obj.voxel_pos(:,2)): obj.cube_length: max(obj.voxel_pos(:,2));
             z_range = min(obj.voxel_pos(:,3)): obj.cube_length: max(obj.voxel_pos(:,3));
+            [X, Y, Z] = meshgrid(x_range, y_range, z_range);
+        end
+        
+        function [X, Y, Z] = getExpandedMeshGrid(obj)
+            x_range = min(obj.voxel_pos(:,1)) - obj.cube_length/2: obj.cube_length: max(obj.voxel_pos(:,1)) + obj.cube_length/2;
+            y_range = min(obj.voxel_pos(:,2)) - obj.cube_length/2: obj.cube_length: max(obj.voxel_pos(:,2)) + obj.cube_length/2;
+            z_range = min(obj.voxel_pos(:,3)) - obj.cube_length/2: obj.cube_length: max(obj.voxel_pos(:,3)) + obj.cube_length/2;
             [X, Y, Z] = meshgrid(x_range, y_range, z_range);
         end
         
@@ -395,7 +441,17 @@ classdef MorphCube < handle
                         vector = my_masses(pair_indcs(1)).p - my_masses(pair_indcs(2)).p;
                         L = vecnorm(vector);
                         act = my_springs(j).act;
-                        L_act = my_springs(j).L_0 + act(1)*sin(act(2)*t + act(3));
+                        % add delay to prevent the cosine from jumping at
+                        % the beginning
+                        if t < 0.25*2*pi/act(2)
+                            if my_springs(j).type == 4
+                                L_act = my_springs(j).L_0;
+                            else
+                                L_act = my_springs(j).L_0 + act(1)*sin(act(2)*t + act(3));
+                            end
+                        else
+                            L_act = my_springs(j).L_0 + act(1)*sin(act(2)*t + act(3)); 
+                        end
                         spring_f = my_springs(j).k*(L - L_act);
                         
                         % create the force vector with correct direction

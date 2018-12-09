@@ -3,17 +3,17 @@ classdef Simulator < handle
     %   Detailed explanation goes here
     properties (Constant)
         g = [0, 0, -9.81]; % Double array. Gravitational acceleration (m/s^2)
-        rho = 1; % Double. Global velocity damping parameter (0<p<=1)
+        rho = 0.999; % Double. Global velocity damping parameter (0<p<=1)
         k_ground = 2500; % contact force constant (2500 default)
-        mu_s = 0.5; % static friction coefficient (0.25 default)
-        mu_k = 0.25; % kinetic friction coefficient (0.1 default)       
-        run_time = 3; % seconds
+        mu_s = 1; % static friction coefficient (0.25 default)
+        mu_k = 0.8; % kinetic friction coefficient (0.1 default)       
+        run_time = 5; % seconds
     end
     
     properties
         bots % Array of robots Represents the bodies in the system
         t = 0 % Double. current time
-        dt = 0.001; 
+        dt = 0.01; 
     end
     
     methods
@@ -147,8 +147,8 @@ classdef Simulator < handle
                 obj.bots(bot_no).updateA(a);        
 %                 toc
                 % get energy
-                ke(:,bot_no) = obj.bots(bot_no).calcKE();
-                pe(:,bot_no) = obj.bots(bot_no).calcPE(obj.g, obj.t) + pe_contact;
+%                 ke(:,bot_no) = obj.bots(bot_no).calcKE();
+%                 pe(:,bot_no) = obj.bots(bot_no).calcPE(obj.g, obj.t) + pe_contact;
                 com(:,bot_no) = obj.bots(bot_no).calcCOM();                        
             end
             % update time
@@ -163,11 +163,11 @@ classdef Simulator < handle
             for bot_no = 1:length(obj.bots)
                 if ~isempty([obj.bots(bot_no).masses.p])
                     % get position of all point masses
-                    % mass_pos = reshape([obj.bots(bot_no).masses.p], 3, []);
-                    % scat = scatter3(mass_pos(1, :), mass_pos(2, :), mass_pos(3, :));
-                    % hold on;
-                    % scat.MarkerEdgeColor = 'k';
-                    % scat.MarkerFaceColor = 'b';                   
+                    mass_pos = reshape([obj.bots(bot_no).masses.p], 3, []);
+                    scat = scatter3(mass_pos(1, :), mass_pos(2, :), mass_pos(3, :));
+                    hold on;
+                    scat.MarkerEdgeColor = 'k';
+                    scat.MarkerFaceColor = 'b';                   
                     % obj.drawOctaSurface(bot_no)                    
                     % draw springs based on given pairs of mass indices
                     pair_indcs = reshape([obj.bots(bot_no).springs.m], 2, [])';
@@ -181,8 +181,8 @@ classdef Simulator < handle
                        
             axis equal;  grid on;
             view(-50, 25)
-            xlim([-1 1]);
-            ylim([-1 1]);
+            xlim(0.5*[-1 1]);
+            ylim(0.5*[-1 1]);
             zlim([-0.02 0.5]);
             xlm = xlim();
             ylm = ylim();
