@@ -7,7 +7,7 @@ classdef Simulator < handle
         k_ground = 2500; % contact force constant (2500 default)
         mu_s = 1; % static friction coefficient (0.25 default)
         mu_k = 0.8; % kinetic friction coefficient (0.1 default)       
-        run_time = 5; % seconds
+        run_time = 10; % seconds
     end
     
     properties

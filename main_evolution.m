@@ -62,8 +62,9 @@ toc
 disp('Done!!');
 plot(par_layers(1,:,:))
 save('test_run2');
-bot_no = 17;
-sim = Simulator(bots(bot_no));
+
+%%
+bot_no = 5;
 
 figure;
 % bots(bot_no).plotPDF();
