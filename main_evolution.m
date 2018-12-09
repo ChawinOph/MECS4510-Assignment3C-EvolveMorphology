@@ -24,29 +24,30 @@ toc
 tic
 for i = 1:g
     % Evaluate
-    
 %     fits = bots.fitness;
     ages = [bots.age];
     
     % Select
-    [front, idx] = pareto_pick(s-0.5*r, fits, ages);
+    [front, idx] = pareto_pick(s-0.5*r, fits', ages');
     parent_bots = bots(idx);
-    parents = parent_bots.gene;
+    parents = [parent_bots.chromosome];
+    parents = reshape(parents, 5,9,[]);
     par_fits = fits(idx);
     
     %Record
     par_layers(:,:,i) = front;
     
     % Crossover
-    for j = 1:2:length(parents)
-        [children(i), children(i+1)] = crossoverMat(parents(i), parents(i+1));
+    for j = 1:2:size(parents,3)
+        [children(:,:,i), children(:,:,i+1)] = crossoverMat(parents(:,:,i), parents(:,:,i+1));
     end
     
     %Mutation
     for j = 1:m*p
-        children = mutate1(gene);
+        rand_idx = randi(size(children,3));
+        children(rand_idx) = mutate1(genes(rand_idx));
     end
-    chidren_bots = MorphCube(children, parent_bots.ages + 1);
+    chidren_bots = MorphCube(children, [parent_bots.age] + 1);
     
     %Add new random individuals
     rand_bots = MorphCube(rand(5,9,r*p));
@@ -67,7 +68,8 @@ plot(par_layers(1,:,:))
 save('test_run2');
 
 %%
-bot_no = 5;
+[M,I] = max(fits);
+bot_no = I;
 
 div = sum(sum(divMat, 2),1);
 figure; plot(div);
@@ -91,3 +93,25 @@ myVideo.Quality = 100;    % Default 75
 open(myVideo);
 writeVideo(myVideo, frames);
 close(myVideo);
+
+%% multiple robots in one video
+p_init_offset = repmat([0 0 2*0.15/2], size(sim_chrom, 3), 1) + ...
+    [1, 1, 0;       % Q1
+    -1  1  0;       % Q2
+    -1 -1  0;       % Q3
+     1 -1  0]*0.75; % Q4;
+sim = Simulator(MorphCube(sim_chrom, zeros(size(sim_chrom, 3)), 1:5, p_init_offset));
+figure;
+sim.drawRobots;
+
+sim = Simulator();
+[frames, K, V, COM, fitness] = sim.simulate_and_plot(MorphCube(sim_chrom, zeros(size(sim_chrom, 3)), 1:5, p_init_offset));
+
+% export to video
+myVideo = VideoWriter('MorphCubeParty.avi');
+myVideo.FrameRate = 25;  % Default 30
+myVideo.Quality = 100;    % Default 75
+open(myVideo);
+writeVideo(myVideo, frames);
+close(myVideo);
+%% robot zoo
