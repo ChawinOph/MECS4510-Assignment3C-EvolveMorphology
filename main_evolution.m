@@ -3,8 +3,8 @@ clc
 clear
 close all
 %%
-p = 50; % Population size
-g = 1; % number of generations
+p = 10; % Population size
+g = 2; % number of generations
 s = 0.5; % selection pressure
 m = 0.1; % proportion of children that get mutated
 r = 0.2; % proportion of random individuals added to the population every gen
@@ -14,6 +14,8 @@ genes= rand(5,9,p);
 bots = MorphCube(genes);
 sim = Simulator();
 par_layers = zeros(s*p, s*p, g);
+divMat = zeros(5,9,g);
+divMat(:,:,1) = std(genes, 0, 3);
 children = zeros(5,9,(1-s)*p);
 tic
 fits = evaluate(sim, bots);
@@ -67,6 +69,8 @@ save('test_run2');
 %%
 bot_no = 5;
 
+div = sum(sum(divMat, 2),1);
+figure; plot(div);
 % bots(bot_no).plotPDF();
 bots(bot_no).plotMaterial();
 

@@ -14,9 +14,12 @@ genes= rand(5,9,p);
 bots = MorphCube(genes);
 sim = Simulator();
 par_layers = zeros(s*p, s*p, g);
+divMat = zeros(5,9,g);
+divMat(:,:,1) = std(genes, 0, 3);
 children = zeros(5,9,(1-s)*p);
+tic
 fits = evaluate(sim, bots);
-
+toc
 %%
 tic
 for i = 1:g
@@ -66,6 +69,7 @@ save('test_run2');
 %%
 bot_no = 5;
 
+div = sum(divMat, 'all);
 % bots(bot_no).plotPDF();
 bots(bot_no).plotMaterial();
 
