@@ -64,9 +64,8 @@ plot(par_layers(1,:,:))
 save('test_run2');
 
 %%
-bot_no = 5;
+bot_no = 1;
 
-figure;
 % bots(bot_no).plotPDF();
 bots(bot_no).plotMaterial();
 

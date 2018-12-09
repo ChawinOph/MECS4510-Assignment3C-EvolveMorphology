@@ -14,10 +14,10 @@ classdef MorphCube < handle
     
     properties (Constant)
         % global constants
-        mass = 0.5; % m
+        mass = 2; % m
         omega = 1.5*pi; % (0.5 Hz of breathing);
-        cube_length = 0.1 % double: length of each individual cube strcture
-        voxel_dim = [2 3 2]   % int 3 x 1: no. of cubes in each dimension (default 5 x 5 x 5)
+        cube_length = 0.15 % double: length of each individual cube strcture
+        voxel_dim = [3 3 2]   % int 3 x 1: no. of cubes in each dimension (default 5 x 5 x 5)
         var_range = [0.01 0.04; 0.01 0.04; 0.01 0.04];  % [Var_x; Var_y; Var_z]
         % Cov_xy = [0,1]*sqrt(Var_x)*sqrt(Var_y)
         % Cov_xz = [0,1]*sqrt(Var_x)*sqrt(Var_z)
@@ -223,7 +223,7 @@ classdef MorphCube < handle
                                         case 1 % hard
                                             b_breathing = 0;
                                             phase = 0;
-                                            k_spring = 1500;
+                                            k_spring = 2000;
                                         case 2 % soft
                                             b_breathing = 0;
                                             phase = 0;
@@ -231,14 +231,14 @@ classdef MorphCube < handle
                                         case 3 % sine med
                                             b_breathing = 1;
                                             phase = 0;
-                                            k_spring = 1000;
+                                            k_spring = 500;
                                         case 4 % cosine med
                                             b_breathing = 1;
                                             phase = pi/2;
-                                            k_spring = 1000;
+                                            k_spring = 500;
                                     end
                                     acts = [acts; b_breathing*[new_L0/4, obj(n_bot).omega, phase]]; %#ok<AGROW>
-                                    K = [K; k_spring]; %#ok<AGROW>
+                                    K = [K; 5*k_spring]; %#ok<AGROW>
                                     spring_type = [spring_type; current_matrl]; %#ok<AGROW>
                                 end
                             end

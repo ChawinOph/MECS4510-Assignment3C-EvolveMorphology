@@ -4,10 +4,10 @@ classdef Simulator < handle
     properties (Constant)
         g = [0, 0, -9.81]; % Double array. Gravitational acceleration (m/s^2)
         rho = 0.999; % Double. Global velocity damping parameter (0<p<=1)
-        k_ground = 2500; % contact force constant (2500 default)
+        k_ground = 20000; % contact force constant (2500 default)
         mu_s = 1; % static friction coefficient (0.25 default)
         mu_k = 0.8; % kinetic friction coefficient (0.1 default)       
-        run_time = 10; % seconds
+        run_time = 20; % seconds
     end
     
     properties
@@ -114,42 +114,40 @@ classdef Simulator < handle
             com = zeros(3,length(obj.bots));
             
             for bot_no = 1:length(obj.bots)
-                % calculate contact forces based on mass positions
-                f_contact = zeros(length(obj.bots(bot_no).masses), 3);
-                mass_pos = reshape([obj.bots(bot_no).masses.p], 3, []);
-                mass_pos_z = mass_pos(3, :);
-                % check if there are any masses underneath the ground
-                if ~isempty(find(mass_pos_z < 0, 1))
-                    contact_inds = find(mass_pos_z < 0);                   
-                    % calculate the restoration force
-                    f_contact(contact_inds, 3) = -obj.k_ground*mass_pos_z(contact_inds);
-                    pe_contact = 1/2*obj.k_ground*sum(abs(mass_pos_z(contact_inds).^2));
+                if isempty([obj.bots(bot_no).masses])
+                    % if robot is empty, do nothing
                 else
-                    pe_contact = 0;
+                    % calculate contact forces based on mass positions
+                    f_contact = zeros(length(obj.bots(bot_no).masses), 3);
+                    mass_pos = reshape([obj.bots(bot_no).masses.p], 3, []);
+                    mass_pos_z = mass_pos(3, :);
+                    % check if there are any masses underneath the ground
+                    if ~isempty(find(mass_pos_z < 0, 1))
+                        contact_inds = find(mass_pos_z < 0);
+                        % calculate the restoration force
+                        f_contact(contact_inds, 3) = -obj.k_ground*mass_pos_z(contact_inds);
+                        pe_contact = 1/2*obj.k_ground*sum(abs(mass_pos_z(contact_inds).^2));
+                    else
+                        pe_contact = 0;
+                    end
+                    
+                    f_ext = f_contact;
+                    
+                    
+                    forces = obj.bots(bot_no).calcForces(obj.g, f_ext, obj.t);
+                    
+                    [a, v, p] = obj.bots(bot_no).calcKin(forces, obj.dt, obj.mu_s, obj.mu_k);
+                    
+                    obj.bots(bot_no).updateP(p);
+                    obj.bots(bot_no).updateV(obj.rho*v);
+                    obj.bots(bot_no).updateA(a);
+                    
+                    % get energy
+                    % ke(:,bot_no) = obj.bots(bot_no).calcKE();
+                    % pe(:,bot_no) = obj.bots(bot_no).calcPE(obj.g, obj.t) + pe_contact;
+                    
+                    com(:,bot_no) = obj.bots(bot_no).calcCOM();
                 end
-               
-                f_ext = f_contact;
-               
-                % calculate kinematic variables
-%                 tic
-%                 disp('calcForce')
-                forces = obj.bots(bot_no).calcForces(obj.g, f_ext, obj.t);
-%                 toc
-                % check the friction on the masses in contact
-%                 tic
-%                 disp('calcKin')
-                [a, v, p] = obj.bots(bot_no).calcKin(forces, obj.dt, obj.mu_s, obj.mu_k);
-%                 toc
-                % update all kinematic variables
-%                 tic
-                obj.bots(bot_no).updateP(p);
-                obj.bots(bot_no).updateV(obj.rho*v);
-                obj.bots(bot_no).updateA(a);        
-%                 toc
-                % get energy
-%                 ke(:,bot_no) = obj.bots(bot_no).calcKE();
-%                 pe(:,bot_no) = obj.bots(bot_no).calcPE(obj.g, obj.t) + pe_contact;
-                com(:,bot_no) = obj.bots(bot_no).calcCOM();                        
             end
             % update time
             obj.t = obj.t + obj.dt;
@@ -167,7 +165,7 @@ classdef Simulator < handle
                     scat = scatter3(mass_pos(1, :), mass_pos(2, :), mass_pos(3, :));
                     hold on;
                     scat.MarkerEdgeColor = 'k';
-                    scat.MarkerFaceColor = 'b';                   
+                    scat.MarkerFaceColor = 'k';                   
                     % obj.drawOctaSurface(bot_no)                    
                     % draw springs based on given pairs of mass indices
                     pair_indcs = reshape([obj.bots(bot_no).springs.m], 2, [])';
@@ -180,9 +178,10 @@ classdef Simulator < handle
             end
                        
             axis equal;  grid on;
-            view(-50, 25)
-            xlim(0.5*[-1 1]);
-            ylim(0.5*[-1 1]);
+%             view(-50, 25);
+            view(2);
+            xlim([-1 1]);
+            ylim([-1 1]);
             zlim([-0.02 0.5]);
             xlm = xlim();
             ylm = ylim();

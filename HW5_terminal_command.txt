@@ -9,6 +9,12 @@ d:
 cd OneDrive\MechE MS-PhD\Courses\2018 Fall - MECS EVOLUTIONARY COMP and DESIGN AUTOM\HW5
 git status
 
+% laptop
+cd/
+c:
+cd Users\Chawin Ophaswongse\OneDrive\MechE MS-PhD\Courses\2018 Fall - MECS EVOLUTIONARY COMP and DESIGN AUTOM\HW5
+git status
+
 git commit -m "<Add message>"d
 
 % stages modifications and deletions, without new files
@@ -53,3 +59,6 @@ git merge --abort
 % push local master to a remote branch
 git push origin master master:Rosie2
 git push -u origin branch_name:branch_name_test
+
+% How to revert a Git repository to a previous commit
+https://stackoverflow.com/questions/4114095/how-to-revert-a-git-repository-to-a-previous-commit
