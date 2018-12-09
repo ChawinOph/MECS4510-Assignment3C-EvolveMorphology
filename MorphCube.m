@@ -85,7 +85,7 @@ classdef MorphCube < handle
                         for i = 1:length(mat_sorted_indcs)
                             unsorting_indcs(i) = find(mat_sorted_indcs == i);
                         end
-                        obj(n_bot).chromosome = obj(n_bot).chromosome(:, unsorting_indcs);
+                        obj(n_bot).chromosome = obj(n_bot).chromosome(unsorting_indcs, :);
                     end
                     
                     % initializa the prob density PD values as a n_voxel x
