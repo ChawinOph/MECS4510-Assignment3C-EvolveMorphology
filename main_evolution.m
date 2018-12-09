@@ -22,7 +22,6 @@ toc
 tic
 for i = 1:g
     % Evaluate
-    
 %     fits = bots.fitness;
     ages = [bots.age];
     
@@ -67,7 +66,8 @@ plot(par_layers(1,:,:))
 save('test_run2');
 
 %%
-bot_no = 5;
+[M,I] = max(fits);
+bot_no = I;
 
 % bots(bot_no).plotPDF();
 bots(bot_no).plotMaterial();
@@ -89,3 +89,25 @@ myVideo.Quality = 100;    % Default 75
 open(myVideo);
 writeVideo(myVideo, frames);
 close(myVideo);
+
+%% multiple robots in one video
+p_init_offset = repmat([0 0 2*0.15/2], size(sim_chrom, 3), 1) + ...
+    [1, 1, 0;       % Q1
+    -1  1  0;       % Q2
+    -1 -1  0;       % Q3
+     1 -1  0]*0.75; % Q4;
+sim = Simulator(MorphCube(sim_chrom, zeros(size(sim_chrom, 3)), 1:5, p_init_offset));
+figure;
+sim.drawRobots;
+
+sim = Simulator();
+[frames, K, V, COM, fitness] = sim.simulate_and_plot(MorphCube(sim_chrom, zeros(size(sim_chrom, 3)), 1:5, p_init_offset));
+
+% export to video
+myVideo = VideoWriter('MorphCubeParty.avi');
+myVideo.FrameRate = 25;  % Default 30
+myVideo.Quality = 100;    % Default 75
+open(myVideo);
+writeVideo(myVideo, frames);
+close(myVideo);
+%% robot zoo

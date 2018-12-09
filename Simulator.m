@@ -7,13 +7,13 @@ classdef Simulator < handle
         k_ground = 20000; % contact force constant (2500 default)
         mu_s = 1; % static friction coefficient (0.25 default)
         mu_k = 0.8; % kinetic friction coefficient (0.1 default)       
-        run_time = 5; % seconds
+        run_time = 20; % seconds
     end
     
     properties
         bots % Array of robots Represents the bodies in the system
         t = 0 % Double. current time
-        dt = 0.01; 
+        dt = 0.005; 
     end
     
     methods
@@ -97,14 +97,25 @@ classdef Simulator < handle
                     k = k + 1;
                     clf;
                     obj.drawRobots();
-                    text(0.4, 0.4, 0.4, ['t = ' num2str(t_step) ' sec']);
+                    
+                    % draw trajectory of COM from the start
+                    com_trajs_x = reshape(COM(1:i, 1, :), [], 1, 1);
+                    com_trajs_y = reshape(COM(1:i, 2, :), [], 1, 1);
+                    com_trajs_z = reshape(COM(1:i, 3, :), [], 1, 1);
+                    scatter3(com_trajs_x, com_trajs_y, com_trajs_z, ...
+                        'Marker', '.', ...
+                        'MarkerEdgeColor', 'g', ...
+                        'MarkerFaceColor', 'g');
+                    
+                    text(1, 1, 0.4, ['t = ' num2str(t_step) ' sec']);
+                    
                     drawnow
                     frames(k) = getframe(fig);  %#ok<AGROW>
                 end
                    
             end         
             
-            fitness = reshape(vecnorm(COM(end , 1:2, :), 2, 2), 1, []);
+            fitness = reshape(vecnorm(COM(end , 1:2, :) - COM(1, 1:2, :), 2, 2), 1, []);
         end
         
         function [ke, pe, com] = step(obj)
@@ -132,8 +143,7 @@ classdef Simulator < handle
                     end
                     
                     f_ext = f_contact;
-                    
-                    
+                                       
                     forces = obj.bots(bot_no).calcForces(obj.g, f_ext, obj.t);
                     
                     [a, v, p] = obj.bots(bot_no).calcKin(forces, obj.dt, obj.mu_s, obj.mu_k);
@@ -178,10 +188,10 @@ classdef Simulator < handle
             end
                        
             axis equal;  grid on;
-            view(-50, 25);
-%             view(2);
-            xlim([-1 1]);
-            ylim([-1 1]);
+%             view(-50, 25);
+            view(2);
+            xlim(1.5*[-1 1]);
+            ylim(1.5*[-1 1]);
             zlim([-0.02 0.5]);
             xlm = xlim();
             ylm = ylim();
