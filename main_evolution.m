@@ -45,7 +45,7 @@ for i = 1:g
         rand_idx = randi(size(children,3));
         children(rand_idx) = mutate1(genes(rand_idx));
     end
-    chidren_bots = MorphCube(children, [parent_bots.age] + 1);
+    children_bots = MorphCube(children, [parent_bots.age] + 1);
     
     %Add new random individuals
     rand_bots = MorphCube(rand(5,9,r*p));
@@ -69,7 +69,7 @@ save('test_run2');
 [M,I] = max(fits);
 bot_no = I;
 
-% bots(bot_no).plotPDF();
+bots(bot_no).plotPDF();
 bots(bot_no).plotMaterial();
 
 sim = Simulator(MorphCube(bots(bot_no).chromosome));
