@@ -7,7 +7,7 @@ classdef Simulator < handle
         k_ground = 20000; % contact force constant (2500 default)
         mu_s = 1; % static friction coefficient (0.25 default)
         mu_k = 0.8; % kinetic friction coefficient (0.1 default)       
-        run_time = 20; % seconds
+        run_time = 5; % seconds
     end
     
     properties
@@ -58,7 +58,7 @@ classdef Simulator < handle
                 COM(i, :, :) = reshape(com_pos, 1, 3, []);            
             end
             
-            fitnesses = reshape(vecnorm(COM(end , 1:2, :), 2, 2), 1, []);
+            fitnesses = reshape(vecnorm(COM(end , 1:2, :) - COM(1, 1:2, :), 2, 2), 1, []);
             
         end
         
@@ -178,8 +178,8 @@ classdef Simulator < handle
             end
                        
             axis equal;  grid on;
-%             view(-50, 25);
-            view(2);
+            view(-50, 25);
+%             view(2);
             xlim([-1 1]);
             ylim([-1 1]);
             zlim([-0.02 0.5]);

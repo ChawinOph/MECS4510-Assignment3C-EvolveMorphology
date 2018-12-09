@@ -3,7 +3,7 @@ clc
 clear
 close all
 %%
-p = 10; % Population size
+p = 50; % Population size
 g = 1; % number of generations
 s = 0.5; % selection pressure
 m = 0.1; % proportion of children that get mutated
@@ -15,20 +15,21 @@ bots = MorphCube(genes);
 sim = Simulator();
 par_layers = zeros(s*p, s*p, g);
 children = zeros(5,9,(1-s)*p);
+tic
 fits = evaluate(sim, bots);
-
+toc
 %%
 tic
 for i = 1:g
     % Evaluate
     
 %     fits = bots.fitness;
-    ages = bots.age;
+    ages = [bots.age];
     
     % Select
     [front, idx] = pareto_pick(s-0.5*r, fits, ages);
     parent_bots = bots(idx);
-    parents = parents_bots.gene;
+    parents = parent_bots.gene;
     par_fits = fits(idx);
     
     %Record
@@ -64,7 +65,7 @@ plot(par_layers(1,:,:))
 save('test_run2');
 
 %%
-bot_no = 1;
+bot_no = 5;
 
 % bots(bot_no).plotPDF();
 bots(bot_no).plotMaterial();
