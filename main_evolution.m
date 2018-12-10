@@ -41,7 +41,7 @@ for i = 1:g
     
     % Crossover
     for j = 1:2:size(parents,3)
-        [children(:,:,i), children(:,:,i+1)] = crossoverMat(parents(:,:,i), parents(:,:,i+1));
+        [children(:,:,j), children(:,:,j+1)] = crossoverMat(parents(:,:,j), parents(:,:,j+1));
     end
     
     %Mutation
