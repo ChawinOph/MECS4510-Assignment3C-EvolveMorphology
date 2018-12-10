@@ -4,7 +4,7 @@ clear
 close all
 %%
 p = 50; % Population size
-g = 1; % number of generations
+g = 5; % number of generations
 s = 0.5; % selection pressure
 m = 0.02; % proportion of children that get mutated
 r = 0.12; % proportion of random individuals added to the population every gen
