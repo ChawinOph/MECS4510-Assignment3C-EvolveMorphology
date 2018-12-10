@@ -3,9 +3,9 @@ function [front, idx, idxB, rank] = pareto_pick(pick, fits, ages)
 % Fitnesses and ages should be column vectors, pick should be between 0 and
 % 1 and represents the percentage of individuals to select
 front = [];
-rank = zeros(1, length(fits))
-idx = []
-idxB = []
+rank = zeros(1, length(fits));
+idx = [];
+idxB = [];
 layer = 1;
 while size(front,1)< pick*length(fits)
     [membership, member_value]=find_pareto_frontier([-fits, ages]);
