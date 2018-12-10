@@ -36,7 +36,7 @@ classdef MorphCube < handle
                     % set the kinematic variables of all masses in each
                     % robot to zero there are missing inputs
                     case 1
-                        age = zeros(size(chromosomes,3));
+                        age = zeros(size(chromosomes,3),1);
                         mat_sorted_indcs = 1:5;
                         p_init_offset = repmat([0 0 obj.voxel_dim(3)*obj.cube_length/2], size(chromosomes, 3), 1);
                         v_init = repmat([0 0 0], size(chromosomes, 3), 1);

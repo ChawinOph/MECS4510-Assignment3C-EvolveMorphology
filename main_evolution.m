@@ -13,8 +13,10 @@ r = 0.12; % proportion of random individuals added to the population every gen
 genes= rand(5,9,p);
 bots = MorphCube(genes);
 sim = Simulator();
-par_layers = zeros(s*(p*(1-r)), 2, g);
-children = zeros(5,9,(1-s)*p*(1-r));
+par_layers = zeros(s*p*(1-r), 2, g);
+divMat = zeros(5,9,g+1);
+divMat(:,:,1) = std(genes, 0, 3);
+children = zeros(5,9,(1-s)*p);
 tic
 fits = evaluate(sim, bots);
 toc
@@ -60,6 +62,8 @@ for i = 1:g
     bots = bots(shuffle_ind);
     fits = fits(shuffle_ind);
     fit_hist(:,i+1) = fits;
+    genes = cat(3, parents, children, reshape([rand_bots.chromosome],5,9,[]));
+    divMat(:,:,i+1) = std(genes, 0, 3);
 end
 toc
 %%
@@ -71,6 +75,9 @@ save('test_run2');
 [M,I] = max(fits);
 bot_no = I;
 
+
+div = sum(sum(divMat, 2),1);
+figure; plot(div);
 bots(bot_no).plotPDF();
 bots(bot_no).plotMaterial();
 
