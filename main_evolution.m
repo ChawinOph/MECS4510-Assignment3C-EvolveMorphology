@@ -29,7 +29,7 @@ for i = 1:g
 %     fits = bots.fitness;
     ages = [bots.age];
     
-    % Select
+    % Selectgit
     [front, idx] = pareto_pick(s-0.5*r, fits', ages');
     parent_bots = bots(idx);
     parents = [parent_bots.chromosome];
@@ -100,24 +100,40 @@ open(myVideo);
 writeVideo(myVideo, frames);
 close(myVideo);
 
-% %% multiple robots in one video
-% p_init_offset = repmat([0 0 2*0.15/2], size(sim_chrom, 3), 1) + ...
-%     [1, 1, 0;       % Q1
-%     -1  1  0;       % Q2
-%     -1 -1  0;       % Q3
-%      1 -1  0]*0.75; % Q4;
-% sim = Simulator(MorphCube(sim_chrom, zeros(size(sim_chrom, 3)), 1:5, p_init_offset));
-% figure;
-% sim.drawRobots;
-% 
-% sim = Simulator();
-% [frames, K, V, COM, fitness] = sim.simulate_and_plot(MorphCube(sim_chrom, zeros(size(sim_chrom, 3)), 1:5, p_init_offset));
-% 
-% % export to video
-% myVideo = VideoWriter('MorphCubeParty.avi');
-% myVideo.FrameRate = 25;  % Default 30
-% myVideo.Quality = 100;    % Default 75
-% open(myVideo);
-% writeVideo(myVideo, frames);
-% close(myVideo);
-%% robot zoo
+%% multiple robots in one video
+p_init_offset = repmat([0 0 2*0.15/2], size(sim_chrom, 3), 1) + ...
+    [1, 1, 0;       % Q1
+    -1  1  0;       % Q2
+    -1 -1  0;       % Q3
+     1 -1  0]*0.75; % Q4;
+sim = Simulator(MorphCube(sim_chrom, zeros(size(sim_chrom, 3)), 1:5, p_init_offset));
+figure;
+sim.drawRobots;
+
+sim = Simulator();
+[frames, K, V, COM, fitness] = sim.simulate_and_plot(MorphCube(sim_chrom, zeros(size(sim_chrom, 3)), 1:5, p_init_offset));
+
+% export to video
+myVideo = VideoWriter('MorphCubeParty.avi');
+myVideo.FrameRate = 25;  % Default 30
+myVideo.Quality = 100;    % Default 75
+open(myVideo);
+writeVideo(myVideo, frames);
+close(myVideo);
+
+%% robot zoo plotting
+bot_zoo_chrom = reshape([bots(10:18).chromosome], 5, 9, []);
+bot_zoo = MorphCube(bot_zoo_chrom);
+
+figure;
+for i = 1:length(bot_zoo)
+    subplot(3,3,i);
+    sim = Simulator(MorphCube(bot_zoo(i).chromosome));
+    sim.drawRobots()
+end
+
+bot_zoo(2).plotMaterial;
+
+example_pdf_bot = MorphCube(bot_zoo(2).chromosome);
+example_pdf_bot.plotPDF()
+

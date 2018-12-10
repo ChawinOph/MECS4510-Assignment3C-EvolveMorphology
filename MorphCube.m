@@ -416,7 +416,8 @@ classdef MorphCube < handle
             lcolorbar(labels,'fontweight','bold');
             xlabel('X'); ylabel('Y'); zlabel('Z');
             
-            view(3); axis equal;
+            view(3); 
+%             axis equal;
         end
         
         %% force functions
