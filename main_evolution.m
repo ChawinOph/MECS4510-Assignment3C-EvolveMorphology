@@ -29,7 +29,7 @@ for i = 1:g
 %     fits = bots.fitness;
     ages = [bots.age];
     
-    % Select
+    % Selectgit
     [front, idx] = pareto_pick(s-0.5*r, fits', ages');
     parent_bots = bots(idx);
     parents = [parent_bots.chromosome];
