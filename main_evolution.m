@@ -4,7 +4,7 @@ clear
 close all
 %%
 p = 50; % Population size
-g = 1; % number of generations
+g = 50; % number of generations
 s = 0.5; % selection pressure
 m = 0.02; % proportion of children that get mutated
 r = 0.12; % proportion of random individuals added to the population every gen
@@ -72,68 +72,68 @@ disp('Done!!');
 plot(par_layers(1,:,:))
 save('test_run3');
 
-%%
-[M,I] = max(fits);
-bot_no = I;
-
-
-div = sum(sum(divMat, 2),1);
-figure; plot(reshape(div,1,[]));
-bots(bot_no).plotPDF();
-bots(bot_no).plotMaterial();
-
-sim = Simulator(MorphCube(bots(bot_no).chromosome));
-figure;
-sim.drawRobots;
-
-sim = Simulator();
-[frames, K, V, COM, fitness] = sim.simulate_and_plot(MorphCube(bots(bot_no).chromosome));
-tic
-fitnesses = sim.evaluate(MorphCube(bots(bot_no).chromosome));
-toc
-
-% export to video
-myVideo = VideoWriter('MorphCube.avi');
-myVideo.FrameRate = 25;  % Default 30
-myVideo.Quality = 100;    % Default 75
-open(myVideo);
-writeVideo(myVideo, frames);
-close(myVideo);
-
-%% multiple robots in one video
-p_init_offset = repmat([0 0 2*0.15/2], size(sim_chrom, 3), 1) + ...
-    [1, 1, 0;       % Q1
-    -1  1  0;       % Q2
-    -1 -1  0;       % Q3
-     1 -1  0]*0.75; % Q4;
-sim = Simulator(MorphCube(sim_chrom, zeros(size(sim_chrom, 3)), 1:5, p_init_offset));
-figure;
-sim.drawRobots;
-
-sim = Simulator();
-[frames, K, V, COM, fitness] = sim.simulate_and_plot(MorphCube(sim_chrom, zeros(size(sim_chrom, 3)), 1:5, p_init_offset));
-
-% export to video
-myVideo = VideoWriter('MorphCubeParty.avi');
-myVideo.FrameRate = 25;  % Default 30
-myVideo.Quality = 100;    % Default 75
-open(myVideo);
-writeVideo(myVideo, frames);
-close(myVideo);
-
-%% robot zoo plotting
-bot_zoo_chrom = reshape([bots(10:18).chromosome], 5, 9, []);
-bot_zoo = MorphCube(bot_zoo_chrom);
-
-figure;
-for i = 1:length(bot_zoo)
-    subplot(3,3,i);
-    sim = Simulator(MorphCube(bot_zoo(i).chromosome));
-    sim.drawRobots()
-end
-
-bot_zoo(2).plotMaterial;
-
-example_pdf_bot = MorphCube(bot_zoo(2).chromosome);
-example_pdf_bot.plotPDF()
+% %%
+% [M,I] = max(fits);
+% bot_no = I;
+% 
+% 
+% div = sum(sum(divMat, 2),1);
+% figure; plot(reshape(div,1,[]));
+% bots(bot_no).plotPDF();
+% bots(bot_no).plotMaterial();
+% 
+% sim = Simulator(MorphCube(bots(bot_no).chromosome));
+% figure;
+% sim.drawRobots;
+% 
+% sim = Simulator();
+% [frames, K, V, COM, fitness] = sim.simulate_and_plot(MorphCube(bots(bot_no).chromosome));
+% tic
+% fitnesses = sim.evaluate(MorphCube(bots(bot_no).chromosome));
+% toc
+% 
+% % export to video
+% myVideo = VideoWriter('MorphCube.avi');
+% myVideo.FrameRate = 25;  % Default 30
+% myVideo.Quality = 100;    % Default 75
+% open(myVideo);
+% writeVideo(myVideo, frames);
+% close(myVideo);
+% 
+% %% multiple robots in one video
+% p_init_offset = repmat([0 0 2*0.15/2], size(sim_chrom, 3), 1) + ...
+%     [1, 1, 0;       % Q1
+%     -1  1  0;       % Q2
+%     -1 -1  0;       % Q3
+%      1 -1  0]*0.75; % Q4;
+% sim = Simulator(MorphCube(sim_chrom, zeros(size(sim_chrom, 3)), 1:5, p_init_offset));
+% figure;
+% sim.drawRobots;
+% 
+% sim = Simulator();
+% [frames, K, V, COM, fitness] = sim.simulate_and_plot(MorphCube(sim_chrom, zeros(size(sim_chrom, 3)), 1:5, p_init_offset));
+% 
+% % export to video
+% myVideo = VideoWriter('MorphCubeParty.avi');
+% myVideo.FrameRate = 25;  % Default 30
+% myVideo.Quality = 100;    % Default 75
+% open(myVideo);
+% writeVideo(myVideo, frames);
+% close(myVideo);
+% 
+% %% robot zoo plotting
+% bot_zoo_chrom = reshape([bots(10:18).chromosome], 5, 9, []);
+% bot_zoo = MorphCube(bot_zoo_chrom);
+% 
+% figure;
+% for i = 1:length(bot_zoo)
+%     subplot(3,3,i);
+%     sim = Simulator(MorphCube(bot_zoo(i).chromosome));
+%     sim.drawRobots()
+% end
+% 
+% bot_zoo(2).plotMaterial;
+% 
+% example_pdf_bot = MorphCube(bot_zoo(2).chromosome);
+% example_pdf_bot.plotPDF()
 
