@@ -16,7 +16,7 @@ sim = Simulator();
 par_layers = zeros(s*p*(1-r), 2, g);
 divMat = zeros(5,9,g);
 divMat(:,:,1) = std(genes, 0, 3);
-children = zeros(5,9,(1-s)*p);
+children = zeros(5,9,(1-s)*p*(1-r));
 tic
 fits = evaluate(sim, bots);
 toc
@@ -47,7 +47,7 @@ for i = 1:g
         rand_idx = randi(size(children,3));
         children(rand_idx) = mutate1(genes(rand_idx));
     end
-    chidren_bots = MorphCube(children, [parent_bots.age] + 1);
+    children_bots = MorphCube(children, [parent_bots.age] + 1);
     
     %Add new random individuals
     rand_bots = MorphCube(rand(5,9,r*p));
@@ -64,8 +64,8 @@ end
 toc
 %%
 disp('Done!!');
-plot(par_layers(1,:,:))
-save('test_run2');
+plot([par_layers(1,:,:)])
+save('test_run4');
 
 %%
 [M,I] = max(fits);

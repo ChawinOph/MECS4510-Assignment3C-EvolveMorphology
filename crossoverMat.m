@@ -1,17 +1,17 @@
 function [childA, childB] = crossoverMat(parentA, parentB)
-cut = [randperm(5,2); randperm(9,2)]
+cut = [randperm(5,2); randperm(9,2)];
 % cut = [4,1; 7,2]
 % childA = zeros(4,3,5);
 % childB = childA;
 if cut(1,1) < cut(1,2)
     if cut(2,1) < cut(2,2)
-        'case 1'
+        'case 1';
         childC = parentA;
         childC(cut(1,1):cut(1,2), cut(2,1):cut(2,2)) = parentB(cut(1,1):cut(1,2), cut(2,1):cut(2,2));
         childD = parentB;
         childD(cut(1,1):cut(1,2), cut(2,1):cut(2,2)) = parentA(cut(1,1):cut(1,2), cut(2,1):cut(2,2));
     else
-        'case 2'
+        'case 2';
         childC = parentA;
         childC(cut(1,1):cut(1,2), 1:cut(2,2)) = parentB(cut(1,1):cut(1,2), 1:cut(2,2));
         childC(cut(1,1):cut(1,2), cut(2,1):end) = parentB(cut(1,1):cut(1,2), cut(2,1):end);
@@ -21,7 +21,7 @@ if cut(1,1) < cut(1,2)
     end
 else
     if cut(2,1) < cut(2,2)
-        'case 3'
+        'case 3';
         childC = parentA;
         childC(1:cut(1,2), cut(2,1):cut(2,2)) = parentB(1:cut(1,2), cut(2,1):cut(2,2));
         childC(cut(1,1):end, cut(2,1):cut(2,2)) = parentB(cut(1,1):end, cut(2,1):cut(2,2));
@@ -29,7 +29,7 @@ else
         childD(1:cut(1,2), cut(2,1):cut(2,2)) = parentA(1:cut(1,2), cut(2,1):cut(2,2));
         childD(cut(1,1):end, cut(2,1):cut(2,2)) = parentA(cut(1,1):end, cut(2,1):cut(2,2));
     else
-        'case 4'
+        'case 4';
         childC = parentA;
         childC(1:cut(1,2), 1:cut(2,2)) = parentB(1:cut(1,2), 1:cut(2,2));
         childC(cut(1,1):end, cut(2,1):end) = parentB(cut(1,1):end, cut(2,1):end);
