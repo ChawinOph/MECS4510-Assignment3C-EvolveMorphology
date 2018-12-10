@@ -36,7 +36,7 @@ classdef MorphCube < handle
                     % set the kinematic variables of all masses in each
                     % robot to zero there are missing inputs
                     case 1
-                        age = zeros(size(chromosomes,3),1);
+                        age = zeros(size(chromosomes,3));
                         mat_sorted_indcs = 1:5;
                         p_init_offset = repmat([0 0 obj.voxel_dim(3)*obj.cube_length/2], size(chromosomes, 3), 1);
                         v_init = repmat([0 0 0], size(chromosomes, 3), 1);
@@ -77,16 +77,16 @@ classdef MorphCube < handle
                     [X_exp, Y_exp, Z_exp] = obj(n_bot).getExpandedMeshGrid();
                     obj(n_bot).expnd_voxel_pos = [X_exp(:), Y_exp(:), Z_exp(:)];
                     
-                    if nargin > 1
-                        % sort rows of gene in case we do linkage tightening
-                        % do the inverse operation of the sorting
-                        % note: sorted_indcs is a 1d array
-                        unsorting_indcs = mat_sorted_indcs;
-                        for i = 1:length(mat_sorted_indcs)
-                            unsorting_indcs(i) = find(mat_sorted_indcs == i);
-                        end
-                        obj(n_bot).chromosome = obj(n_bot).chromosome(unsorting_indcs, :);
-                    end
+%                     if nargin > 1
+%                         % sort rows of gene in case we do linkage tightening
+%                         % do the inverse operation of the sorting
+%                         % note: sorted_indcs is a 1d array
+%                         unsorting_indcs = mat_sorted_indcs;
+%                         for i = 1:length(mat_sorted_indcs)
+%                             unsorting_indcs(i) = find(mat_sorted_indcs == i);
+%                         end
+%                         obj(n_bot).chromosome = obj(n_bot).chromosome(:, unsorting_indcs);
+%                     end
                     
                     % initializa the prob density PD values as a n_voxel x
                     % n_matrl
@@ -100,7 +100,7 @@ classdef MorphCube < handle
                     for i = 1:size(obj(n_bot).chromosome, 1)
                         
                         % get variance values from normalized value
-                        var = obj(n_bot).chromosome(i, 4:6)'.*diff(obj(n_bot).var_range, 1, 2) + obj(n_bot).var_range(:, 1);
+                        var = obj(n_bot).chromosome(:, 4:6)'.*diff(obj(n_bot).var_range, 1, 2) + obj(n_bot).var_range(:, 1);
                         covar = diag(var);
                         
                         % calculate covariance values from normalized value
