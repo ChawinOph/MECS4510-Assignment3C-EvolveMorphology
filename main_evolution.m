@@ -16,11 +16,12 @@ sim = Simulator();
 par_layers = zeros(s*p*(1-r), 2, g);
 divMat = zeros(5,9,g+1);
 divMat(:,:,1) = std(genes, 0, 3);
-children = zeros(5,9,(1-s)*p);
+children = zeros(5,9,(1-s)*p*(1-r));
 tic
 fits = evaluate(sim, bots);
 toc
 fit_hist = zeros(p,g+1);
+fit_hist(:,1) = fits;
 %%
 tic
 for i = 1:g
@@ -69,7 +70,7 @@ toc
 %%
 disp('Done!!');
 plot(par_layers(1,:,:))
-save('test_run2');
+save('test_run3');
 
 %%
 [M,I] = max(fits);
@@ -77,7 +78,7 @@ bot_no = I;
 
 
 div = sum(sum(divMat, 2),1);
-figure; plot(div);
+figure; plot(reshape(div,1,[]));
 bots(bot_no).plotPDF();
 bots(bot_no).plotMaterial();
 
