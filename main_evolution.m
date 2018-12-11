@@ -5,11 +5,12 @@ close all
 %%
 p = 25; % Population size
 g = 3; % number of generations
+
 s = 0.5; % selection pressure
 m = 0.02; % proportion of children that get mutated
 r = 0.12; % proportion of random individuals added to the population every gen
 
-disp(['Estimated running time: ' num2str(floor(3.5*p*(g + 1)/3600/2)) ' hr. ' num2str(round(mod(3.5*p*(g + 1)/60/2, 60))) ' mins'])
+disp(['Estimated run time: ' num2str(floor(3.5*p*(g + 1)/3600/2)) ' hr. ' num2str(round(mod(3.5*p*(g + 1)/60/2, 60))) ' mins'])
 
 %%
 n_eval = [0];
@@ -99,19 +100,26 @@ title('Pareto layer (Last Gen)')
 
 % diversity plot
 div = sum(sum(divMat, 2),1);
-figure; plot(reshape(div,1,[]));
-title('Diversity plot')
+figure; plot(reshape(div,1,[]), 'm');
+title('Diversity Plot');
+xlim([1 size(divMat, 3)]);
+xlabel('No. of Generations')
+ylabel('Sum of Standard Deviation')
 
 % dot plot
 figure;
 var = reshape(repmat(1:(g + 1), p, 1), [], 1);
-scatter(var, reshape(fit_hist(:,1:(g + 1)), [], 1), '.')
+scat = scatter(var, reshape(fit_hist(:,1:(g + 1)), [], 1), '.');
+scat.MarkerEdgeColor = 'b';
 title('Dot Plot')
+xlim([1 max(var)])
+xlabel('No. of Generations')
+ylabel('Fitness: COM displacement (m)')
 
 % learning curve
 figure;
 plot(n_eval, [0 max(fit_hist)])
-title('Lerning Curve')
+title('Learning Curve')
 
 % show the best bot
 [M,I] = max(fits);

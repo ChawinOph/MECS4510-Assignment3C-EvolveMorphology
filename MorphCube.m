@@ -121,12 +121,10 @@ classdef MorphCube < handle
                         pd(i, :) = mvnpdf(obj(n_bot).voxel_pos, MU(i, :), covar);
                         pd_expnd(i, :) = mvnpdf(obj(n_bot).expnd_voxel_pos, MU(i, :), covar);
                     end
-                    
-                                  
+                                                      
                     obj(n_bot).pd = pd;
                     obj(n_bot).pd_expnd = pd_expnd;      
-                   
-                    
+                                      
                     % select material with prob in proportion to weights (PD) of
                     % material at each columbn of voxel coordinate (or just find the max value)
                     % matrl = zeros(1, size(pd, 2));
