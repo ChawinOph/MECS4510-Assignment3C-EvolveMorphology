@@ -193,7 +193,7 @@ classdef Simulator < handle
             end
                        
             axis equal;  grid on;
-            view(3); % or view(2);
+            view(2); % or view(2);
             xlim(1.5*[-1 1]);
             ylim(1.5*[-1 1]);
             zlim([-0.02 0.5]);
