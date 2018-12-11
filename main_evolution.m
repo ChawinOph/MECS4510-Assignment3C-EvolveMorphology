@@ -42,7 +42,7 @@ for i = 1:g
     par_layers(:,:,i) = front;
     
     % Crossover
-    for j = 1:2:size(parents,3)
+    for j = 1:2:size(parents, 3)
         [children(:,:,j), children(:,:,j+1)] = crossoverMat(parents(:,:,j), parents(:,:,j+1));
     end
     
