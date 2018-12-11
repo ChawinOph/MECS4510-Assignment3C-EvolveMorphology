@@ -3,8 +3,8 @@ clc
 clear
 close all
 %%
-p = 50; % Population size
-g = 400; % number of generations
+p = 25; % Population size
+g = 3; % number of generations
 s = 0.5; % selection pressure
 m = 0.02; % proportion of children that get mutated
 r = 0.12; % proportion of random individuals added to the population every gen
@@ -16,10 +16,10 @@ n_eval = [0];
 genes= rand(5,9,p);
 bots = MorphCube(genes);
 sim = Simulator();
-par_layers = zeros(s*p*(1-r), 2, g);
+par_layers = zeros(s*floor(p*(1-r)), 2, g);
 divMat = zeros(5,9,g+1);
 divMat(:,:,1) = std(genes, 0, 3);
-children = zeros(5,9,(1-s)*p*(1-r));
+children = zeros(5,9,(1-s)*floor(p*(1-r)));
 tic
 [fits, n_eval_gen] = sim.evaluate(bots);
 n_eval = [n_eval n_eval_gen];
@@ -36,39 +36,48 @@ for i = 1:g
     % Select git
     [front, idx] = pareto_pick(s-0.5*r, fits', ages');
     parent_bots = bots(idx);
-    parents = [parent_bots.chromosome];
-    parents = reshape(parents, 5,9,[]);
+%     parents = [parent_bots.chromosome];
+%     parents = reshape(parents, 5,9,[]);
     par_fits = fits(idx);
     
-    %Record
-    par_layers(:,:,i) = front;
     
+    
+    %Shuffle
+    shuffle_ind = randperm(length(parent_bots));
+    par_fits = fits(shuffle_ind);
+    parent_bots = parent_bots(shuffle_ind);
+    parents = [parent_bots.chromosome];
+    parents = reshape(parents, 5,9,[]);
+%     parents = parents(:,:,shuffle_ind);
+        
     % Crossover
-    for j = 1:2:size(parents, 3)
-        [children(:,:,j), children(:,:,j+1)] = crossoverMat(parents(:,:,j), parents(:,:,j+1));
+    for j = 1:2:size(parent_bots,2)
+        if j== size(parent_bots,2)
+            [children(:,:,j), ~] = crossoverMat(parents(:,:,j), parents(:,:,1));
+        else
+            [children(:,:,j), children(:,:,j+1)] = crossoverMat(parents(:,:,j), parents(:,:,j+1));
+        end
     end
     
     %Mutation
-    for j = 1:m*p
+    for j = 1:ceil(m*p)
         rand_idx = randi(size(children,3));
         children(rand_idx) = mutate1(genes(rand_idx));
     end
     children_bots = MorphCube(children, [parent_bots.age] + 1);
     
     %Add new random individuals
-    rand_bots = MorphCube(rand(5,9,r*p));
+    rand_bots = MorphCube(rand(5,9,ceil(r*p)));
 
-    
+    %Evaluate
     [child_fits, n_eval_child] = evaluate(sim, children_bots);
     [rand_fits, n_eval_rand] = evaluate(sim, rand_bots);
     n_eval = [n_eval (n_eval(end) + n_eval_child + n_eval_rand)]; %#ok<AGROW>
     
+    %Record
+    par_layers(:,:,i) = front;
     bots = [parent_bots, children_bots, rand_bots];
     fits = [par_fits, child_fits, rand_fits];
-    
-    shuffle_ind = randperm(length(bots));
-    bots = bots(shuffle_ind);
-    fits = fits(shuffle_ind);
     fit_hist(:,i+1) = fits;
     genes = cat(3, parents, children, reshape([rand_bots.chromosome],5,9,[]));
     divMat(:,:,i+1) = std(genes, 0, 3);
