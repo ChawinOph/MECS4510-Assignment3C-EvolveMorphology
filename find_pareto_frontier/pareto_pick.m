@@ -9,8 +9,8 @@ idx = [];
 layer = 1;
 while size(front,1)< pick*length(fits)
     [membership, member_value]=find_pareto_frontier([-fits, ages]);
-    scatter(ages, fits); hold on
-    scatter(member_value(:,2), -member_value(:,1), 'r'); hold off
+%     scatter(ages, fits); hold on
+%     scatter(member_value(:,2), -member_value(:,1), 'r'); hold off
     front = [front; member_value];
 %     fits = fits(membership ==0);
 %     ages = ages(membership ==0);
