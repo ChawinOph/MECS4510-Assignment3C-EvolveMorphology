@@ -395,10 +395,7 @@ classdef MorphCube < handle
             matrl = obj.voxel_matrl(:);
             matrl_color = flipud(jet(4));
             
-            figure;
-            %             scatter3(obj.voxel_pos(:,1), obj.voxel_pos(:,2), obj.voxel_pos(:,3), [], matrl, 'x'); hold on;
-            %             colormap(jet(4)); caxis([1 4]);
-            
+            figure;            
             cube_dim = obj.cube_length*ones(1,3);
             
             % create offset to see the scatter plots at the center of voxels
@@ -415,7 +412,7 @@ classdef MorphCube < handle
             xlabel('X'); ylabel('Y'); zlabel('Z');
             
             view(3); 
-%             axis equal;
+            axis equal;
         end
         
         %% force functions
@@ -436,18 +433,7 @@ classdef MorphCube < handle
                 vector = my_masses(pair_indcs(1)).p - my_masses(pair_indcs(2)).p;
                 L_spring = vecnorm(vector);
                 act = my_springs(i).act;
-                
-                % add delay to prevent the cosine from jumping at
-                % the beginning
-%                 if t < 0.25*2*pi/act(2)
-% %                     if my_springs(i).type == 4
-% %                         L_0_act = my_springs(i).L_0;
-% %                     else
-%                     L_0_act = my_springs(i).L_0 + act(1)*sin(act(2)*t + act(3));
-% %                     end
-%                 else
                 L_0_act = my_springs(i).L_0 + act(1)*sin(act(2)*t + act(3));
-%                 end
                 
                 spring_f = my_springs(i).k*(L_spring - L_0_act);
                 
@@ -456,51 +442,6 @@ classdef MorphCube < handle
                 forces(pair_indcs(2), :) = forces(pair_indcs(2), :) + spring_f*vector/L_spring;          
                 
             end
-            
-            %%%%%%%%%%%%%%%%%%%
-%             for i = 1:length(my_masses)
-%                 % add gravitational force
-%                 forces(i,:) = my_masses(i).mass * g + f_ext(i,:);
-%                 % go through all springs in the robot
-%                 for j = 1:length(my_springs)
-%                     % check if the current mass index is attahced to the current
-%                     % spring
-%                     if ismember(i, my_springs(j).m)
-%                         
-%                         n_spring_eval = n_spring_eval + 1;
-%                         
-%                         % find the current spring length L
-%                         pair_indcs = my_springs(j).m;
-%                         vector = my_masses(pair_indcs(1)).p - my_masses(pair_indcs(2)).p;
-%                         L_spring = vecnorm(vector);
-%                         act = my_springs(j).act;
-%                         
-%                         % add delay to prevent the cosine from jumping at
-%                         % the beginning
-%                         if t < 0.25*2*pi/act(2)
-%                             if my_springs(j).type == 4
-%                                 L_0_act = my_springs(j).L_0;
-%                             else
-%                                 L_0_act = my_springs(j).L_0 + act(1)*sin(act(2)*t + act(3));
-%                             end
-%                         else
-%                             L_0_act = my_springs(j).L_0 + act(1)*sin(act(2)*t + act(3));
-%                         end
-%                         
-%                         spring_f = my_springs(j).k*(L_spring - L_0_act);
-%                         
-%                         % create the force vector with correct direction
-%                         if my_springs(j).m(1) == i
-%                             spring_v = -spring_f*vector/L_spring;
-%                         elseif my_springs(j).m(2) == i
-%                             spring_v = spring_f*vector/L_spring;
-%                         end
-%                         
-%                         % add more forces to the mass
-%                         forces(i,:) = forces(i,:) + spring_v;
-%                     end
-%                 end
-                %%%%%%% 
             
         end
         

@@ -83,7 +83,7 @@ for i = 1:g
     genes = cat(3, parents, children, reshape([rand_bots.chromosome],5,9,[]));
     divMat(:,:,i+1) = std(genes, 0, 3);
     
-    disp(['Comepleted Gen ' num2str(i)])
+    disp(['Completed Gen ' num2str(i)])
 end
 toc
 %%
