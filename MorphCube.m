@@ -228,13 +228,13 @@ classdef MorphCube < handle
                                             b_breathing = 0;
                                             phase = 0;
                                             k_spring = 500;
-                                        case 3 % sine med
+                                        case 3 % sine soft
                                             b_breathing = 1;
                                             phase = 0;
                                             k_spring = 500;
-                                        case 4 % cosine med
+                                        case 4 % neg. sine soft
                                             b_breathing = 1;
-                                            phase = pi/2;
+                                            phase = pi;
                                             k_spring = 500;
                                     end
                                     acts = [acts; b_breathing*[new_L0/4, obj(n_bot).omega, phase]]; %#ok<AGROW>
@@ -341,7 +341,7 @@ classdef MorphCube < handle
             [X, Y, Z] = obj.getExpandedMeshGrid();
             lim = zeros(size(obj.chromosome, 1), 2);
             
-            labels = {'Hard','Soft','Sine','Cosine','Empty'};
+            labels = {'Hard','Soft','Sine','Neg. Sine','Empty'};
             
             % prepare voxel plot       
             cube_dim = obj.cube_length*ones(1,3); 
@@ -412,7 +412,7 @@ classdef MorphCube < handle
             end
             
             colormap(jet(4));
-            labels = {'Cosine','Sine','Soft','Hard'};
+            labels = {'Neg. Sine','Sine','Soft','Hard'};
             lcolorbar(labels,'fontweight','bold');
             xlabel('X'); ylabel('Y'); zlabel('Z');
             
@@ -421,52 +421,89 @@ classdef MorphCube < handle
         end
         
         %% force functions
-        function forces = calcForces(obj, g, f_ext, t)
+        function [forces, n_spring_eval] = calcForces(obj, g, f_ext, t)
             %CALCFORCES Calculates the vector forces on each mass
             %   g is the gravitational constant (1x3 vector)
             %   f are additional forces on the nodes (num_masses x 3 array)
             my_masses = obj.masses;
             my_springs = obj.springs;
-            forces = zeros(length(my_masses), 3);
-            for i = 1:length(my_masses)
-                % add gravitational force
-                forces(i,:) = my_masses(i).mass * g + f_ext(i,:);
-                % go through all springs in the robot
-                for j = 1:length(my_springs)
-                    % check if the current mass index is attahced to the current
-                    % spring
-                    if ismember(i, my_springs(j).m)
-                        
-                        % find the current spring length L
-                        pair_indcs = my_springs(j).m;
-                        vector = my_masses(pair_indcs(1)).p - my_masses(pair_indcs(2)).p;
-                        L = vecnorm(vector);
-                        act = my_springs(j).act;
-                        % add delay to prevent the cosine from jumping at
-                        % the beginning
-                        if t < 0.25*2*pi/act(2)
-                            if my_springs(j).type == 4
-                                L_act = my_springs(j).L_0;
-                            else
-                                L_act = my_springs(j).L_0 + act(1)*sin(act(2)*t + act(3));
-                            end
-                        else
-                            L_act = my_springs(j).L_0 + act(1)*sin(act(2)*t + act(3)); 
-                        end
-                        spring_f = my_springs(j).k*(L - L_act);
-                        
-                        % create the force vector with correct direction
-                        if my_springs(j).m(1) == i
-                            spring_v = -spring_f*vector/L;
-                        elseif my_springs(j).m(2) == i
-                            spring_v = spring_f*vector/L;
-                        end
-                        
-                        % add more forces to the mass
-                        forces(i,:) = forces(i,:) + spring_v;
-                    end
-                end
+            % initial forces on masses (gravity and external forces)          
+            forces = [my_masses.mass]'.*repmat(g, length([my_masses.mass]), 1) + f_ext;
+            n_spring_eval = length(my_springs);
+            
+            for i = 1:length(my_springs)
+                
+                % find the current spring length L
+                pair_indcs = my_springs(i).m;
+                vector = my_masses(pair_indcs(1)).p - my_masses(pair_indcs(2)).p;
+                L_spring = vecnorm(vector);
+                act = my_springs(i).act;
+                
+                % add delay to prevent the cosine from jumping at
+                % the beginning
+%                 if t < 0.25*2*pi/act(2)
+% %                     if my_springs(i).type == 4
+% %                         L_0_act = my_springs(i).L_0;
+% %                     else
+%                     L_0_act = my_springs(i).L_0 + act(1)*sin(act(2)*t + act(3));
+% %                     end
+%                 else
+                L_0_act = my_springs(i).L_0 + act(1)*sin(act(2)*t + act(3));
+%                 end
+                
+                spring_f = my_springs(i).k*(L_spring - L_0_act);
+                
+                % add the force vectors on two pair masses with correct direction
+                forces(pair_indcs(1), :) = forces(pair_indcs(1), :) - spring_f*vector/L_spring;
+                forces(pair_indcs(2), :) = forces(pair_indcs(2), :) + spring_f*vector/L_spring;          
+                
             end
+            
+            %%%%%%%%%%%%%%%%%%%
+%             for i = 1:length(my_masses)
+%                 % add gravitational force
+%                 forces(i,:) = my_masses(i).mass * g + f_ext(i,:);
+%                 % go through all springs in the robot
+%                 for j = 1:length(my_springs)
+%                     % check if the current mass index is attahced to the current
+%                     % spring
+%                     if ismember(i, my_springs(j).m)
+%                         
+%                         n_spring_eval = n_spring_eval + 1;
+%                         
+%                         % find the current spring length L
+%                         pair_indcs = my_springs(j).m;
+%                         vector = my_masses(pair_indcs(1)).p - my_masses(pair_indcs(2)).p;
+%                         L_spring = vecnorm(vector);
+%                         act = my_springs(j).act;
+%                         
+%                         % add delay to prevent the cosine from jumping at
+%                         % the beginning
+%                         if t < 0.25*2*pi/act(2)
+%                             if my_springs(j).type == 4
+%                                 L_0_act = my_springs(j).L_0;
+%                             else
+%                                 L_0_act = my_springs(j).L_0 + act(1)*sin(act(2)*t + act(3));
+%                             end
+%                         else
+%                             L_0_act = my_springs(j).L_0 + act(1)*sin(act(2)*t + act(3));
+%                         end
+%                         
+%                         spring_f = my_springs(j).k*(L_spring - L_0_act);
+%                         
+%                         % create the force vector with correct direction
+%                         if my_springs(j).m(1) == i
+%                             spring_v = -spring_f*vector/L_spring;
+%                         elseif my_springs(j).m(2) == i
+%                             spring_v = spring_f*vector/L_spring;
+%                         end
+%                         
+%                         % add more forces to the mass
+%                         forces(i,:) = forces(i,:) + spring_v;
+%                     end
+%                 end
+                %%%%%%% 
+            
         end
         
         
