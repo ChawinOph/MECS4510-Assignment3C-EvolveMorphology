@@ -14,11 +14,11 @@ classdef MorphCube < handle
     
     properties (Constant)
         % global constants
-        mass = 2; % m
+        mass = 1; % kg (default 2 kg)
         omega = 1.5*pi; % (0.5 Hz of breathing);
-        cube_length = 0.15 % double: length of each individual cube strcture
-        voxel_dim = [3 3 2]   % int 3 x 1: no. of cubes in each dimension (default 5 x 5 x 5)
-        var_range = [0.01 0.04; 0.01 0.04; 0.01 0.04];  % [Var_x; Var_y; Var_z]
+        cube_length = 0.1 % double: length of each individual cube strcture (0.15)
+        voxel_dim = [4 3 3]   % int 3 x 1: no. of cubes in each dimension (default 3 x 3 x 2)
+        var_range = [0.01 0.09; 0.01 0.09; 0.01 0.09];  % [Var_x; Var_y; Var_z]
         % Cov_xy = [0,1]*sqrt(Var_x)*sqrt(Var_y)
         % Cov_xz = [0,1]*sqrt(Var_x)*sqrt(Var_z)
         % Cov_yz = [0,1]*sqrt(Var_y)*sqrt(Var_z)

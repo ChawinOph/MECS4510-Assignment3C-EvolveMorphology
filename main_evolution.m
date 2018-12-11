@@ -3,14 +3,15 @@ clc
 clear
 close all
 %%
-p = 25; % Population size
-g = 3; % number of generations
+p = 50; % Population size
+g = 300; % number of generations
 
 s = 0.5; % selection pressure
 m = 0.02; % proportion of children that get mutated
 r = 0.12; % proportion of random individuals added to the population every gen
 
-disp(['Estimated run time: ' num2str(floor(3.5*p*(g + 1)/3600/2)) ' hr. ' num2str(round(mod(3.5*p*(g + 1)/60/2, 60))) ' mins'])
+disp(['Estimated run time: ' num2str(floor(6*p*(g + 1)/3600/2)) ' hr. ' ...
+    num2str(round(mod(6*p*(g + 1)/60/2, 60))) ' mins'])
 
 %%
 n_eval = [0];
@@ -23,8 +24,8 @@ divMat(:,:,1) = std(genes, 0, 3);
 children = zeros(5,9,(1-s)*floor(p*(1-r)));
 tic
 [fits, n_eval_gen] = sim.evaluate(bots);
-n_eval = [n_eval n_eval_gen];
 toc
+n_eval = [n_eval n_eval_gen];
 fit_hist = zeros(p,g+1);
 fit_hist(:,1) = fits;
 %% start the EA
@@ -91,9 +92,6 @@ disp('Done!!');
 save('test_run_5');
 
 %%
-[M,I] = max(fits);
-bot_no = I;
-
 figure;
 scatter(par_layers(:,2,end), par_layers(:,1,end), '+')
 title('Pareto layer (Last Gen)')
