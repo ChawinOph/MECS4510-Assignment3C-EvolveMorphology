@@ -3,11 +3,13 @@ clc
 clear
 close all
 %%
-p = 25; % Population size
-g = 2; % number of generations
+p = 50; % Population size
+g = 10; % number of generations
 s = 0.5; % selection pressure
 m = 0.02; % proportion of children that get mutated
 r = 0.12; % proportion of random individuals added to the population every gen
+
+disp(['Estimated running time: ' num2str(floor(3.5*p*(g + 1)/3600)) ' hr. ' num2str(round(mod(3.5*p*(g + 1)/60, 60))) ' mins'])
 
 %%
 n_eval = [0];
@@ -76,10 +78,10 @@ end
 toc
 %%
 disp('Done!!');
-figure;
-plot(par_layers(1,:,:))
-title('Pareto layer')
-save('test_run3');
+% figure;
+% scatter(par_layers(:,2,end), par_layers(:,1,end))
+% title('Pareto layer (Last Gen)')
+save('test_run_4');
 
 % diversity plot
 div = sum(sum(divMat, 2),1);
@@ -110,6 +112,9 @@ sim.drawRobots;
 
 sim = Simulator();
 [frames, K, V, COM, fitness] = sim.simulate_and_plot(MorphCube(bots(bot_no).chromosome));
+tic
+[fits, n_eval_gen] = sim.evaluate(MorphCube(bots(bot_no).chromosome));
+toc
 
 % export to video
 myVideo = VideoWriter('BestBot_MorphCube.avi');
