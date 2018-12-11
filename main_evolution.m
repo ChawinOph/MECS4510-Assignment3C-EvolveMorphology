@@ -4,7 +4,7 @@ clear
 close all
 %%
 p = 50; % Population size
-g = 5; % number of generations
+g = 20; % number of generations
 s = 0.5; % selection pressure
 m = 0.02; % proportion of children that get mutated
 r = 0.12; % proportion of random individuals added to the population every gen
@@ -41,7 +41,7 @@ for i = 1:g
     
     % Crossover
     for j = 1:2:size(parents,3)
-        [children(:,:,i), children(:,:,i+1)] = crossoverMat(parents(:,:,i), parents(:,:,i+1));
+        [children(:,:,j), children(:,:,j+1)] = crossoverMat(parents(:,:,j), parents(:,:,j+1));
     end
     
     %Mutation
@@ -72,35 +72,37 @@ disp('Done!!');
 plot(par_layers(1,:,:))
 save('test_run3');
 
+var = reshape(repmat(1:(g + 1), p, 1), [], 1);
+scatter(var, reshape(fit_hist(:,1:(g + 1)), [], 1))
+
 % %%
-% [M,I] = max(fits);
-% bot_no = I;
+[M,I] = max(fits);
+bot_no = I;
+
+div = sum(sum(divMat, 2),1);
+figure; plot(reshape(div,1,[]));
+bots(bot_no).plotPDF();
+bots(bot_no).plotMaterial();
 % 
-% 
-% div = sum(sum(divMat, 2),1);
-% figure; plot(reshape(div,1,[]));
-% bots(bot_no).plotPDF();
-% bots(bot_no).plotMaterial();
-% 
-% sim = Simulator(MorphCube(bots(bot_no).chromosome));
-% figure;
-% sim.drawRobots;
-% 
-% sim = Simulator();
-% [frames, K, V, COM, fitness] = sim.simulate_and_plot(MorphCube(bots(bot_no).chromosome));
-% tic
-% fitnesses = sim.evaluate(MorphCube(bots(bot_no).chromosome));
-% toc
-% 
-% % export to video
-% myVideo = VideoWriter('MorphCube.avi');
-% myVideo.FrameRate = 25;  % Default 30
-% myVideo.Quality = 100;    % Default 75
-% open(myVideo);
-% writeVideo(myVideo, frames);
-% close(myVideo);
-% 
-% %% multiple robots in one video
+sim = Simulator(MorphCube(bots(bot_no).chromosome));
+figure;
+sim.drawRobots;
+
+sim = Simulator();
+[frames, K, V, COM, fitness] = sim.simulate_and_plot(MorphCube(bots(bot_no).chromosome));
+tic
+fitnesses = sim.evaluate(MorphCube(bots(bot_no).chromosome));
+toc
+
+% export to video
+myVideo = VideoWriter('MorphCube.avi');
+myVideo.FrameRate = 25;  % Default 30
+myVideo.Quality = 100;    % Default 75
+open(myVideo);
+writeVideo(myVideo, frames);
+close(myVideo);
+
+%% multiple robots in one video
 % p_init_offset = repmat([0 0 2*0.15/2], size(sim_chrom, 3), 1) + ...
 %     [1, 1, 0;       % Q1
 %     -1  1  0;       % Q2

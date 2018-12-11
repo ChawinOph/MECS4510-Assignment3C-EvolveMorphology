@@ -190,8 +190,8 @@ classdef Simulator < handle
             axis equal;  grid on;
 %             view(-50, 25);
             view(3);
-            xlim(0.5*[-1 1]);
-            ylim(0.5*[-1 1]);
+            xlim(1.5*[-1 1]);
+            ylim(1.5*[-1 1]);
             zlim([-0.02 0.5]);
             xlm = xlim();
             ylm = ylim();
