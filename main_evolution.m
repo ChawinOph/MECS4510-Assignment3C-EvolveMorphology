@@ -4,12 +4,12 @@ clear
 close all
 %%
 p = 50; % Population size
-g = 10; % number of generations
+g = 5; % number of generations
 s = 0.5; % selection pressure
 m = 0.02; % proportion of children that get mutated
 r = 0.12; % proportion of random individuals added to the population every gen
 
-disp(['Estimated running time: ' num2str(floor(3.5*p*(g + 1)/3600)) ' hr. ' num2str(round(mod(3.5*p*(g + 1)/60, 60))) ' mins'])
+disp(['Estimated running time: ' num2str(floor(3.5*p*(g + 1)/3600/2)) ' hr. ' num2str(round(mod(3.5*p*(g + 1)/60/2, 60))) ' mins'])
 
 %%
 n_eval = [0];
@@ -61,7 +61,7 @@ for i = 1:g
     
     [child_fits, n_eval_child] = evaluate(sim, children_bots);
     [rand_fits, n_eval_rand] = evaluate(sim, rand_bots);
-    n_eval = [n_eval (n_eval_child + n_eval_rand)]; %#ok<AGROW>
+    n_eval = [n_eval (n_eval(end) + n_eval_child + n_eval_rand)]; %#ok<AGROW>
     
     bots = [parent_bots, children_bots, rand_bots];
     fits = [par_fits, child_fits, rand_fits];
@@ -78,10 +78,11 @@ end
 toc
 %%
 disp('Done!!');
-% figure;
-% scatter(par_layers(:,2,end), par_layers(:,1,end))
-% title('Pareto layer (Last Gen)')
-save('test_run_4');
+save('test_run_5');
+
+figure;
+scatter(par_layers(:,2,end), par_layers(:,1,end), '+')
+title('Pareto layer (Last Gen)')
 
 % diversity plot
 div = sum(sum(divMat, 2),1);
@@ -91,12 +92,12 @@ title('Diversity plot')
 % dot plot
 figure;
 var = reshape(repmat(1:(g + 1), p, 1), [], 1);
-scatter(var, reshape(fit_hist(:,1:(g + 1)), [], 1))
+scatter(var, reshape(fit_hist(:,1:(g + 1)), [], 1), '.')
 title('Dot Plot')
 
 % learning curve
 figure;
-plot(n_eval, [0 fit_hist])
+plot(n_eval, [0 max(fit_hist)])
 title('Lerning Curve')
 
 % show the best bot
