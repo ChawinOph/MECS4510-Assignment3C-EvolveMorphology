@@ -3,7 +3,7 @@ clc
 clear
 close all
 %%
-p = 50; % Population size
+p = 25; % Population size
 g = 2; % number of generations
 s = 0.5; % selection pressure
 m = 0.02; % proportion of children that get mutated
@@ -71,7 +71,7 @@ for i = 1:g
     genes = cat(3, parents, children, reshape([rand_bots.chromosome],5,9,[]));
     divMat(:,:,i+1) = std(genes, 0, 3);
     
-    disp(['Comepleted Gen ' num2str(g)])
+    disp(['Comepleted Gen ' num2str(i)])
 end
 toc
 %%
