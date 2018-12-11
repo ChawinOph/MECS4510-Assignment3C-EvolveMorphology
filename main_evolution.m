@@ -4,7 +4,7 @@ clear
 close all
 %%
 p = 50; % Population size
-g = 20; % number of generations
+g = 5; % number of generations
 s = 0.5; % selection pressure
 m = 0.02; % proportion of children that get mutated
 r = 0.12; % proportion of random individuals added to the population every gen
@@ -29,7 +29,7 @@ for i = 1:g
 %     fits = bots.fitness;
     ages = [bots.age];
     
-    % Selectgit
+    % Select git
     [front, idx] = pareto_pick(s-0.5*r, fits', ages');
     parent_bots = bots(idx);
     parents = [parent_bots.chromosome];
