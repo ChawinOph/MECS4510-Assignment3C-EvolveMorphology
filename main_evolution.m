@@ -4,7 +4,7 @@ clear
 close all
 %%
 p = 50; % Population size
-g = 1; % number of generations
+g = 3; % number of generations
 s = 0.5; % selection pressure
 m = 0.02; % proportion of children that get mutated
 r = 0.12; % proportion of random individuals added to the population every gen
@@ -21,6 +21,7 @@ tic
 fits = evaluate(sim, bots);
 toc
 fit_hist = zeros(p,g+1);
+fit_hist(:,1) = fits;
 %%
 tic
 for i = 1:g
@@ -77,7 +78,7 @@ bot_no = I;
 
 
 div = sum(sum(divMat, 2),1);
-figure; plot(div);
+figure; plot(reshape(div,1,[]));
 bots(bot_no).plotPDF();
 bots(bot_no).plotMaterial();
 
