@@ -10,8 +10,9 @@ s = 0.5; % selection pressure
 m = 0.02; % proportion of children that get mutated
 r = 0.12; % proportion of random individuals added to the population every gen
 
-disp(['Estimated run time: ' num2str(floor(6*p*(g + 1)/3600/2)) ' hr. ' ...
-    num2str(round(mod(6*p*(g + 1)/60/2, 60))) ' mins'])
+run_time_per_robot = 6; % s
+disp(['Estimated run time: ' num2str(floor(run_time_per_robot*p*(g + 1)/3600/2)) ' hr. ' ...
+    num2str(round(mod(run_time_per_robot*p*(g + 1)/60/2, 60))) ' mins'])
 
 %%
 n_eval = [0];
@@ -42,11 +43,9 @@ for i = 1:g
 %     parents = reshape(parents, 5,9,[]);
     par_fits = fits(idx);
     
-    
-    
     %Shuffle
     shuffle_ind = randperm(length(parent_bots));
-    par_fits = fits(shuffle_ind);
+    par_fits = par_fits(shuffle_ind);
     parent_bots = parent_bots(shuffle_ind);
     parents = [parent_bots.chromosome];
     parents = reshape(parents, 5,9,[]);

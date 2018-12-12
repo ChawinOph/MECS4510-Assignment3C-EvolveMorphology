@@ -128,7 +128,7 @@ classdef Simulator < handle
             n_spring_eval_step = 0;
             
             for bot_no = 1:length(obj.bots)
-                if isempty([obj.bots(bot_no).masses])
+                if isempty([obj.bots(bot_no).masses.mass])
                     % if robot is empty, do nothing
                 else
                     % calculate contact forces based on mass positions
