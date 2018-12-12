@@ -7,7 +7,7 @@ classdef Simulator < handle
         k_ground = 20000; % contact force constant (2500 default)
         mu_s = 1; % static friction coefficient (0.25 default)
         mu_k = 0.8; % kinetic friction coefficient (0.1 default)       
-        run_time = 5; % seconds
+        run_time = 10; % seconds
     end
     
     properties
@@ -31,13 +31,13 @@ classdef Simulator < handle
             end            
         end
         
-        function fitnesses = evaluate(obj, bots)
+        function [fitnesses, n_eval_gen] = evaluate(obj, bots)
             % create array of robot objects the same number as no. of gene
             % columns (you have a choice to do one robot at a time by inputting just one gene)
-            [~, ~, ~, fitnesses] = obj.simulate(bots);
+            [~, ~, ~, fitnesses, n_eval_gen] = obj.simulate(bots);
         end
         
-        function [K, V, COM, fitnesses] = simulate(obj, bots)
+        function [K, V, COM, fitnesses, n_eval_gen] = simulate(obj, bots)
             % SIMULATE run the simulation without the plot'
             
             obj.bots = bots;
@@ -47,15 +47,17 @@ classdef Simulator < handle
             K = zeros(length(T), length(obj.bots)); % kinetic energy
             V = zeros(length(T), length(obj.bots)); % potential energy
             COM = zeros(length(T), 3, length(obj.bots)); % potential energy
+            n_eval_gen = 0; % no. of eval per
             
             % reset timer
             obj.t = 0;
             
             for i = 1:length(T)
-                [ke, pe, com_pos] = obj.step();      
+                [ke, pe, com_pos, n_spring_eval_step] = obj.step();      
                 V(i, :) = pe;
                 K(i, :) = ke;
-                COM(i, :, :) = reshape(com_pos, 1, 3, []);            
+                COM(i, :, :) = reshape(com_pos, 1, 3, []);  
+                n_eval_gen = n_eval_gen + n_spring_eval_step;
             end
             
             fitnesses = reshape(vecnorm(COM(end , 1:2, :) - COM(1, 1:2, :), 2, 2), 1, []);
@@ -85,7 +87,7 @@ classdef Simulator < handle
             for i = 1:length(T)
                
                 t_step = T(i);     
-                [ke, pe, com_pos] = obj.step();
+                [ke, pe, com_pos, ~] = obj.step();
                     
                 V(i, :) = pe;
                 K(i, :) = ke;
@@ -118,20 +120,22 @@ classdef Simulator < handle
             fitness = reshape(vecnorm(COM(end , 1:2, :) - COM(1, 1:2, :), 2, 2), 1, []);
         end
         
-        function [ke, pe, com] = step(obj)
+        function [ke, pe, com, n_spring_eval_step] = step(obj)
             % loop through all robots
             ke = zeros(1,length(obj.bots));
             pe = zeros(1,length(obj.bots));
             com = zeros(3,length(obj.bots));
+            n_spring_eval_step = 0;
             
             for bot_no = 1:length(obj.bots)
-                if isempty([obj.bots(bot_no).masses])
+                if isempty([obj.bots(bot_no).masses.mass])
                     % if robot is empty, do nothing
                 else
                     % calculate contact forces based on mass positions
                     f_contact = zeros(length(obj.bots(bot_no).masses), 3);
                     mass_pos = reshape([obj.bots(bot_no).masses.p], 3, []);
                     mass_pos_z = mass_pos(3, :);
+                    
                     % check if there are any masses underneath the ground
                     if ~isempty(find(mass_pos_z < 0, 1))
                         contact_inds = find(mass_pos_z < 0);
@@ -142,11 +146,12 @@ classdef Simulator < handle
                         pe_contact = 0;
                     end
                     
-                    f_ext = f_contact;
-                                       
-                    forces = obj.bots(bot_no).calcForces(obj.g, f_ext, obj.t);
-                    
-                    [a, v, p] = obj.bots(bot_no).calcKin(forces, obj.dt, obj.mu_s, obj.mu_k);
+                    f_ext = f_contact;                               
+               
+                    [forces, n_spring_eval] = obj.bots(bot_no).calcForces(obj.g, f_ext, obj.t);
+                    n_spring_eval_step = n_spring_eval_step + n_spring_eval;
+
+                    [a, v, p] = obj.bots(bot_no).calcKin(forces, obj.dt, obj.mu_s, obj.mu_k);                 
                     
                     obj.bots(bot_no).updateP(p);
                     obj.bots(bot_no).updateV(obj.rho*v);
@@ -188,8 +193,7 @@ classdef Simulator < handle
             end
                        
             axis equal;  grid on;
-%             view(-50, 25);
-            view(2);
+            view(11.5,35); % or view(2);
             xlim(1.5*[-1 1]);
             ylim(1.5*[-1 1]);
             zlim([-0.02 0.5]);
@@ -204,6 +208,9 @@ classdef Simulator < handle
             
             % add light 
             lightangle(-45,30)
+            
+            % change to perspective
+            set(gca, 'Projection','perspective')
             
             xlabel('x (m)')
             ylabel('y (m)')

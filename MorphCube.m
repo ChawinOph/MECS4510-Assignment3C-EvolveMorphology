@@ -14,11 +14,11 @@ classdef MorphCube < handle
     
     properties (Constant)
         % global constants
-        mass = 2; % m
+        mass = 1; % kg (default 2 kg)
         omega = 1.5*pi; % (0.5 Hz of breathing);
-        cube_length = 0.15 % double: length of each individual cube strcture
-        voxel_dim = [3 3 2]   % int 3 x 1: no. of cubes in each dimension (default 5 x 5 x 5)
-        var_range = [0.01 0.04; 0.01 0.04; 0.01 0.04];  % [Var_x; Var_y; Var_z]
+        cube_length = 0.1 % double: length of each individual cube strcture (0.15)
+        voxel_dim = [4 4 3]   % int 3 x 1: no. of cubes in each dimension (default 3 x 3 x 2)
+        var_range = [0.01 0.09; 0.01 0.09; 0.01 0.09];  % [Var_x; Var_y; Var_z]
         % Cov_xy = [0,1]*sqrt(Var_x)*sqrt(Var_y)
         % Cov_xz = [0,1]*sqrt(Var_x)*sqrt(Var_z)
         % Cov_yz = [0,1]*sqrt(Var_y)*sqrt(Var_z)
@@ -121,12 +121,10 @@ classdef MorphCube < handle
                         pd(i, :) = mvnpdf(obj(n_bot).voxel_pos, MU(i, :), covar);
                         pd_expnd(i, :) = mvnpdf(obj(n_bot).expnd_voxel_pos, MU(i, :), covar);
                     end
-                    
-                                  
+                                                      
                     obj(n_bot).pd = pd;
                     obj(n_bot).pd_expnd = pd_expnd;      
-                   
-                    
+                                      
                     % select material with prob in proportion to weights (PD) of
                     % material at each columbn of voxel coordinate (or just find the max value)
                     % matrl = zeros(1, size(pd, 2));
@@ -228,13 +226,13 @@ classdef MorphCube < handle
                                             b_breathing = 0;
                                             phase = 0;
                                             k_spring = 500;
-                                        case 3 % sine med
+                                        case 3 % sine soft
                                             b_breathing = 1;
                                             phase = 0;
                                             k_spring = 500;
-                                        case 4 % cosine med
+                                        case 4 % neg. sine soft
                                             b_breathing = 1;
-                                            phase = pi/2;
+                                            phase = pi;
                                             k_spring = 500;
                                     end
                                     acts = [acts; b_breathing*[new_L0/4, obj(n_bot).omega, phase]]; %#ok<AGROW>
@@ -341,7 +339,7 @@ classdef MorphCube < handle
             [X, Y, Z] = obj.getExpandedMeshGrid();
             lim = zeros(size(obj.chromosome, 1), 2);
             
-            labels = {'Hard','Soft','Sine','Cosine','Empty'};
+            labels = {'Hard','Soft','Sine','Neg. Sine','Empty'};
             
             % prepare voxel plot       
             cube_dim = obj.cube_length*ones(1,3); 
@@ -397,10 +395,7 @@ classdef MorphCube < handle
             matrl = obj.voxel_matrl(:);
             matrl_color = flipud(jet(4));
             
-            figure;
-            %             scatter3(obj.voxel_pos(:,1), obj.voxel_pos(:,2), obj.voxel_pos(:,3), [], matrl, 'x'); hold on;
-            %             colormap(jet(4)); caxis([1 4]);
-            
+            figure;            
             cube_dim = obj.cube_length*ones(1,3);
             
             % create offset to see the scatter plots at the center of voxels
@@ -412,60 +407,42 @@ classdef MorphCube < handle
             end
             
             colormap(jet(4));
-            labels = {'Cosine','Sine','Soft','Hard'};
+            labels = {'Neg. Sine','Sine','Soft','Hard'};
             lcolorbar(labels,'fontweight','bold');
             xlabel('X'); ylabel('Y'); zlabel('Z');
             
-            view(3); axis equal;
+            view(3); 
+            axis equal;
         end
         
         %% force functions
-        function forces = calcForces(obj, g, f_ext, t)
+        function [forces, n_spring_eval] = calcForces(obj, g, f_ext, t)
             %CALCFORCES Calculates the vector forces on each mass
             %   g is the gravitational constant (1x3 vector)
             %   f are additional forces on the nodes (num_masses x 3 array)
             my_masses = obj.masses;
             my_springs = obj.springs;
-            forces = zeros(length(my_masses), 3);
-            for i = 1:length(my_masses)
-                % add gravitational force
-                forces(i,:) = my_masses(i).mass * g + f_ext(i,:);
-                % go through all springs in the robot
-                for j = 1:length(my_springs)
-                    % check if the current mass index is attahced to the current
-                    % spring
-                    if ismember(i, my_springs(j).m)
-                        
-                        % find the current spring length L
-                        pair_indcs = my_springs(j).m;
-                        vector = my_masses(pair_indcs(1)).p - my_masses(pair_indcs(2)).p;
-                        L = vecnorm(vector);
-                        act = my_springs(j).act;
-                        % add delay to prevent the cosine from jumping at
-                        % the beginning
-                        if t < 0.25*2*pi/act(2)
-                            if my_springs(j).type == 4
-                                L_act = my_springs(j).L_0;
-                            else
-                                L_act = my_springs(j).L_0 + act(1)*sin(act(2)*t + act(3));
-                            end
-                        else
-                            L_act = my_springs(j).L_0 + act(1)*sin(act(2)*t + act(3)); 
-                        end
-                        spring_f = my_springs(j).k*(L - L_act);
-                        
-                        % create the force vector with correct direction
-                        if my_springs(j).m(1) == i
-                            spring_v = -spring_f*vector/L;
-                        elseif my_springs(j).m(2) == i
-                            spring_v = spring_f*vector/L;
-                        end
-                        
-                        % add more forces to the mass
-                        forces(i,:) = forces(i,:) + spring_v;
-                    end
-                end
+            % initial forces on masses (gravity and external forces)          
+            forces = [my_masses.mass]'.*repmat(g, length([my_masses.mass]), 1) + f_ext;
+            n_spring_eval = length(my_springs);
+            
+            for i = 1:length(my_springs)
+                
+                % find the current spring length L
+                pair_indcs = my_springs(i).m;
+                vector = my_masses(pair_indcs(1)).p - my_masses(pair_indcs(2)).p;
+                L_spring = vecnorm(vector);
+                act = my_springs(i).act;
+                L_0_act = my_springs(i).L_0 + act(1)*sin(act(2)*t + act(3));
+                
+                spring_f = my_springs(i).k*(L_spring - L_0_act);
+                
+                % add the force vectors on two pair masses with correct direction
+                forces(pair_indcs(1), :) = forces(pair_indcs(1), :) - spring_f*vector/L_spring;
+                forces(pair_indcs(2), :) = forces(pair_indcs(2), :) + spring_f*vector/L_spring;          
+                
             end
+            
         end
         
         
