@@ -4,13 +4,13 @@ clear
 close all
 %%
 p = 50; % Population size
-g = 300; % number of generations
+g = 100; % number of generations
 
 s = 0.5; % selection pressure
 m = 0.02; % proportion of children that get mutated
 r = 0.12; % proportion of random individuals added to the population every gen
 
-run_time_per_robot = 6; % s
+run_time_per_robot = 7; % s
 disp(['Estimated run time: ' num2str(floor(run_time_per_robot*p*(g + 1)/3600/2)) ' hr. ' ...
     num2str(round(mod(run_time_per_robot*p*(g + 1)/60/2, 60))) ' mins'])
 
@@ -19,19 +19,26 @@ n_eval = [0];
 genes= rand(5,9,p);
 bots = MorphCube(genes);
 sim = Simulator();
+
 par_layers = zeros(s*floor(p*(1-r)), 2, g);
+
 divMat = zeros(5,9,g+1);
 divMat(:,:,1) = std(genes, 0, 3);
+
 children = zeros(5,9,(1-s)*floor(p*(1-r)));
 tic
 [fits, n_eval_gen] = sim.evaluate(bots);
 toc
 n_eval = [n_eval n_eval_gen];
-fit_hist = zeros(p,g+1);
-fit_hist(:,1) = fits;
+
+fit_hist = [];
+fit_hist = [fit_hist, fits'];
 %% start the EA
 tic
-for i = 1:g
+
+cont_inc = 3; % specify how many more gens to run 
+
+for i = (1 : g) + cont_inc
     % Evaluate
 %     fits = bots.fitness;
     ages = [bots.age];
@@ -76,19 +83,32 @@ for i = 1:g
     n_eval = [n_eval (n_eval(end) + n_eval_child + n_eval_rand)]; %#ok<AGROW>
     
     %Record
-    par_layers(:,:,i) = front;
+    if i <= g
+        par_layers(:,:,i) = front;
+    else
+        par_layers = cat(3, par_layers, front);
+    end
+    
     bots = [parent_bots, children_bots, rand_bots];
     fits = [par_fits, child_fits, rand_fits];
-    fit_hist(:,i+1) = fits;
+    
+    % grow the fit_hist 
+    fit_hist = [fit_hist, fits']; %#ok<AGROW>
+    
     genes = cat(3, parents, children, reshape([rand_bots.chromosome],5,9,[]));
-    divMat(:,:,i+1) = std(genes, 0, 3);
+    
+    if i <= g
+       divMat(:,:,i+1) = std(genes, 0, 3);
+    else
+       divMat = cat(3, divMat, std(genes, 0, 3)); 
+    end
     
     disp(['Completed Gen ' num2str(i)])
 end
 toc
-%%
 disp('Done!!');
-save('test_run_5');
+%%
+% save('test_run_5');
 
 %%
 figure;
@@ -132,7 +152,7 @@ sim.drawRobots;
 sim = Simulator();
 [frames, K, V, COM, fitness] = sim.simulate_and_plot(MorphCube(bots(bot_no).chromosome));
 tic
-[fits, n_eval_gen] = sim.evaluate(MorphCube(bots(bot_no).chromosome));
+[fit, n_eval_gen] = sim.evaluate(MorphCube(bots(bot_no).chromosome));
 toc
 
 % export to video
