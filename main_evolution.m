@@ -4,12 +4,13 @@ clear
 close all
 %%
 p = 50; % Population size
-g = 100; % number of generations
+g = 400; % number of generations
+
 s = 0.5; % selection pressure
 m = 0.02; % proportion of children that get mutated
 r = 0.12; % proportion of random individuals added to the population every gen
 
-run_time_per_robot = 7; % s
+run_time_per_robot = 5.5; % s
 disp(['Estimated run time: ' num2str(floor(run_time_per_robot*p*(g + 1)/3600/2)) ' hr. ' ...
     num2str(round(mod(run_time_per_robot*p*(g + 1)/60/2, 60))) ' mins'])
 
@@ -35,7 +36,7 @@ fit_hist = [fit_hist, fits'];
 %% start the EA
 tic
 
-cont_inc = 3; % specify how many more gens to run 
+cont_inc = 0; % specify how many more gens to run 
 
 for i = (1 : g) + cont_inc
     % Evaluate
@@ -200,4 +201,19 @@ close(myVideo);
 % 
 % example_pdf_bot = MorphCube(bot_zoo(2).chromosome);
 % example_pdf_bot.plotPDF()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
