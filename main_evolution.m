@@ -141,9 +141,6 @@ title('Learning Curve')
 [M,I] = max(fits);
 bot_no = I;
 
-div = sum(sum(divMat, 2),1);
-figure; plot(reshape(div,1,[]));
-
 bots(bot_no).plotPDF();
 bots(bot_no).plotMaterial();
 
