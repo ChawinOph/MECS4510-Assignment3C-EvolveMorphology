@@ -4,7 +4,7 @@ clear
 close all
 %%
 p = 50; % Population size
-g = 100; % number of generations
+g = 400; % number of generations
 s = 0.5; % selection pressure
 m = 0.02; % proportion of children that get mutated
 r = 0.12; % proportion of random individuals added to the population every gen
@@ -35,7 +35,7 @@ fit_hist = [fit_hist, fits'];
 %% start the EA
 tic
 
-cont_inc = 3; % specify how many more gens to run 
+cont_inc = 0; % specify how many more gens to run 
 
 for i = (1 : g) + cont_inc
     % Evaluate
@@ -107,7 +107,7 @@ end
 toc
 disp('Done!!');
 %%
-save('test_run_7');
+save('test_run_9');
 %%
 figure;
 scatter(par_layers(:,2,end), par_layers(:,1,end), '+')
@@ -125,7 +125,7 @@ ylabel('Sum of Standard Deviation')
 figure;
 var = reshape(repmat(1:(g + 1), p, 1), [], 1);
 scat = scatter(var, reshape(fit_hist(:,1:(g + 1)), [], 1), '.');
-scat.MarkerEdgeColor = 'b';
+scat.MarkerEdgeColor = 'b';children_bots
 title('Dot Plot')
 xlim([1 max(var)])
 xlabel('No. of Generations')

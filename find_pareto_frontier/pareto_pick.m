@@ -24,14 +24,12 @@ while size(front,1)< ceil(pick*length(fits))
     layer = layer + 1;
 end
 if length(rank(rank>0)) > ceil(pick*length(fits))
-    
-<<<<<<< HEAD
-front = front(1:pick*length(fits),:);
-idx = idx(1:pick*length(fits),:);
-=======
+
+% front = front(1:pick*length(fits),:);
+% idx = idx(1:pick*length(fits),:);
+
 front = front(1:ceil(pick*length(fits)),:);
 idx = idx(1:ceil(pick*length(fits)),:);
->>>>>>> 88401a76a23764759904917bc258f12038134090
 % idxB = idxB(1:pick*length(fits),:);
     
 % Try to fix idxB. Maybe use intersect or ismember? Until then, just use idxA.
