@@ -9,7 +9,7 @@ s = 0.5; % selection pressure
 m = 0.02; % proportion of children that get mutated
 r = 0.12; % proportion of random individuals added to the population every gen
 
-run_time_per_robot = 7; % s
+run_time_per_robot = 5.5; % s
 disp(['Estimated run time: ' num2str(floor(run_time_per_robot*p*(g + 1)/3600/2)) ' hr. ' ...
     num2str(round(mod(run_time_per_robot*p*(g + 1)/60/2, 60))) ' mins'])
 
@@ -140,9 +140,6 @@ title('Learning Curve')
 [M,I] = max(fits);
 bot_no = I;
 
-div = sum(sum(divMat, 2),1);
-figure; plot(reshape(div,1,[]));
-
 bots(bot_no).plotPDF();
 bots(bot_no).plotMaterial();
 
@@ -200,4 +197,19 @@ close(myVideo);
 % 
 % example_pdf_bot = MorphCube(bot_zoo(2).chromosome);
 % example_pdf_bot.plotPDF()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
